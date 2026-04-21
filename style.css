@@ -230,7 +230,7 @@ a {
 }
 
 .page-hero__logo-img {
-  height: 150px;
+  height: 350px;
   width: auto;
   max-width: min(640px, 50vw);
   object-fit: contain;

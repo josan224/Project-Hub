@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soar Beyond Sales Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap');
+:root{
+  --bg:#f0f4f4;
+  --surface:#ffffff;
+  --s2:#eef4f4;
+  --border:rgba(0,120,120,.12);
+  --b2:rgba(0,120,120,.25);
+  --text:#0d2b45;
+  --t2:#4a6070;
+  --t3:#8aa0ae;
+  --teal:#007878;
+  --teal2:#009999;
+  --teal-light:#e0f4f4;
+  --teal-text:#006666;
+  --navy:#0d2b45;
+  --navy2:#1a3f5c;
+  --warn:#b07010;--wbg:#faeeda;
+  --err:#8b3214;--ebg:#faece7;
+  --ok:#1a6b5a;--obg:#e0f4f0;
+  --r:10px;--rs:6px
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);font-size:15px}
+
+header{
+  background:linear-gradient(135deg,#007878 0%,#009999 60%,#00aaaa 100%);
+  color:#fff;padding:0 1.75rem;display:flex;align-items:center;justify-content:space-between;height:56px;
+  box-shadow:0 2px 8px rgba(0,100,100,.25);
+}
+header h1{font-size:17px;font-weight:700;letter-spacing:.03em;font-family:'Nunito Sans',sans-serif}
+.yr{font-size:11px;background:rgba(255,255,255,.2);padding:3px 11px;border-radius:20px;font-weight:600;letter-spacing:.04em}
+
+nav{background:var(--surface);border-bottom:2px solid var(--teal-light);display:flex;padding:0 1.75rem;overflow-x:auto;gap:0}
+nav button{background:none;border:none;border-bottom:3px solid transparent;padding:12px 17px;font-size:13px;font-family:'Nunito Sans',sans-serif;font-weight:600;color:var(--t2);cursor:pointer;white-space:nowrap;margin-bottom:-2px}
+nav button.on{color:var(--teal);border-bottom-color:var(--teal)}
+nav button:hover:not(.on){color:var(--navy)}
+
+main{max-width:1080px;margin:0 auto;padding:1.75rem 1.25rem}
+.tab{display:none}.tab.on{display:block}
+
+h2{font-size:22px;font-weight:800;margin-bottom:1.25rem;color:var(--navy)}
+h3{font-size:15px;font-weight:700;margin-bottom:.85rem;color:var(--navy)}
+
+.card{background:var(--surface);border:.5px solid var(--border);border-radius:var(--r);padding:1.2rem 1.4rem;margin-bottom:1.1rem;box-shadow:0 1px 4px rgba(0,100,100,.06)}
+
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.1rem}
+.m{background:var(--s2);border-radius:var(--rs);padding:.9rem;text-align:center;border:.5px solid var(--border)}
+.ml{font-size:11px;color:var(--t2);font-family:'Nunito Sans',sans-serif;font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.mv{font-size:24px;font-weight:800;font-family:'Nunito Sans',sans-serif;color:var(--navy)}
+.ms{font-size:11px;color:var(--t3);margin-top:2px}
+.m.hi{background:linear-gradient(135deg,#007878,#009999);border-color:transparent}
+.m.hi .ml{color:rgba(255,255,255,.8)}
+.m.hi .mv{color:#fff;font-size:26px}
+.m.hi .ms{color:rgba(255,255,255,.7)}
+
+.pbw{background:var(--s2);border-radius:20px;height:7px;overflow:hidden;margin:5px 0;border:.5px solid var(--border)}
+.pb{height:100%;border-radius:20px;transition:width .4s;background:var(--teal2)}
+.pb.w{background:var(--warn)}.pb.d{background:var(--err)}
+
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.fgrp{display:flex;flex-direction:column;gap:4px}
+label{font-size:12px;color:var(--t2);font-weight:600;letter-spacing:.02em}
+input,select,textarea{border:.5px solid var(--b2);border-radius:var(--rs);padding:7px 10px;font-size:13px;font-family:'Nunito Sans',sans-serif;background:var(--surface);color:var(--text);width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 2px rgba(0,120,120,.1)}
+textarea{resize:vertical;min-height:75px}
+
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 18px;border-radius:var(--rs);border:.5px solid var(--b2);background:var(--surface);color:var(--text);font-size:13px;font-family:'Nunito Sans',sans-serif;font-weight:600;cursor:pointer}
+.btn:hover{background:var(--s2)}
+.btn.p{background:linear-gradient(135deg,#007878,#009999);color:#fff;border-color:transparent;box-shadow:0 2px 6px rgba(0,100,100,.3)}
+.btn.p:hover{background:linear-gradient(135deg,#006666,#008888)}
+.btn.dng{background:var(--ebg);color:var(--err);border-color:transparent}
+
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:.9rem}
+
+table{width:100%;border-collapse:collapse;font-size:13px;font-family:'Nunito Sans',sans-serif}
+th{text-align:left;padding:8px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);border-bottom:1.5px solid var(--teal-light);font-weight:700;background:var(--s2)}
+td{padding:8px 10px;border-bottom:.5px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--teal-light)}
+
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.badge.g{background:var(--obg);color:var(--ok)}
+.badge.a{background:var(--wbg);color:var(--warn)}
+.badge.r{background:var(--ebg);color:var(--err)}
+
+.cw{position:relative;width:100%;height:280px}
+.tcol{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}
+@media(max-width:620px){.tcol{grid-template-columns:1fr}}
+
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.9rem}
+.tcard{background:var(--surface);border:.5px solid var(--border);border-radius:var(--r);padding:.95rem 1.1rem;box-shadow:0 1px 4px rgba(0,100,100,.06)}
+.tch{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:'Nunito Sans',sans-serif;flex-shrink:0;background:linear-gradient(135deg,#007878,#009999);color:#fff}
+.av.b{background:linear-gradient(135deg,#b07010,#d4920a);color:#fff}
+.av.c{background:linear-gradient(135deg,#1a4a7a,#2a6aaa);color:#fff}
+.av.e{background:linear-gradient(135deg,#7a1a4a,#aa2a6a);color:#fff}
+.av.f{background:linear-gradient(135deg,#4a1a7a,#6a2aaa);color:#fff}
+
+.sr{display:flex;justify-content:space-between;padding:5px 0;border-bottom:.5px solid var(--border);font-size:13px}
+.sr:last-child{border-bottom:none}
+.sr .k{color:var(--t2)}.sr .v{font-weight:700;color:var(--navy)}
+
+hr{border:none;border-top:.5px solid var(--border);margin:1.2rem 0}
+.saved{background:var(--obg);color:var(--ok);padding:9px 14px;border-radius:var(--rs);font-size:13px;display:none;margin-top:9px;font-weight:600;border:.5px solid rgba(0,100,80,.2)}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--t3);font-size:14px}
+
+.trow{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.tl{font-size:13px;font-weight:600}
+.tp{font-size:13px;font-weight:700}
+.tp.ok{color:var(--ok)}.tp.wn{color:var(--warn)}.tp.er{color:var(--err)}
+
+/* Teal section header strip */
+.section-header{background:linear-gradient(135deg,#007878,#009999);color:#fff;padding:10px 16px;border-radius:var(--rs);margin-bottom:1rem;font-weight:700;font-size:14px;letter-spacing:.02em}
+@keyframes spin{to{transform:rotate(360deg)}}
+.exec-type-btn{border-color:var(--border);color:var(--t2);font-weight:600}
+.exec-type-btn.on{background:linear-gradient(135deg,#007878,#009999);color:#fff;border-color:transparent}
+.dash-filter-btn{border:none!important;background:transparent!important;color:var(--t2);box-shadow:none!important}
+.dash-filter-btn.on{background:linear-gradient(135deg,#007878,#009999)!important;color:#fff!important;box-shadow:0 1px 4px rgba(0,100,100,.2)!important}
+
+</style>
+</head>
+<body>
+
+<div id="app-loading" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.92);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:sans-serif">
+  <div style="width:40px;height:40px;border:3px solid #e0f4f4;border-top-color:#007878;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+  <div style="font-size:14px;color:#4a6070;font-weight:600">Loading shared data…</div>
+  <div id="app-status" style="font-size:12px;color:#8aa0ae;margin-top:4px"></div>
+</div>
+
+
+<div id="app-main" style="display:none">
+<header>
+  <div style="display:flex;flex-direction:column;gap:1px">
+    <h1>Soar Beyond — Sales Dashboard</h1>
+    <div style="font-size:10px;letter-spacing:.1em;opacity:.75;font-weight:600;text-transform:uppercase">Innovation in Healthcare</div>
+  </div>
+  <span class="yr" id="yr-badge">2026</span>
+  <span style="font-size:10px;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px;margin-left:6px;letter-spacing:.04em;font-weight:600">v3</span>
+</header>
+
+<nav id="nav">
+  <button class="on" data-tab="dashboard">Dashboard</button>
+  <button data-tab="entry">Weekly Entry</button>
+  <button data-tab="targets">Targets &amp; KPIs</button>
+  <button data-tab="team">Team Performance</button>
+  <button data-tab="history">History</button>
+  <button data-tab="exec">Board Report</button>
+  <button data-tab="settings">Settings</button>
+  <button id="btn-sync" style="margin-left:auto;background:none;border:none;padding:11px 16px;font-size:12px;font-family:'Nunito Sans',sans-serif;font-weight:600;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:5px" title="Sync latest data from shared storage">
+    <span id="sync-icon" style="display:inline-block;font-size:14px">⟳</span> Sync
+  </button>
+</nav>
+
+<main>
+
+<div class="tab on" id="tab-dashboard">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1.25rem">
+    <h2 style="margin-bottom:0" id="d-heading">Weekly Overview</h2>
+    <div style="display:flex;gap:6px;background:var(--s2);padding:4px;border-radius:8px;border:.5px solid var(--border)">
+      <button class="btn dash-filter-btn on" data-period="weekly"  style="padding:6px 16px;font-size:12px;border-radius:6px">Weekly</button>
+      <button class="btn dash-filter-btn"    data-period="monthly" style="padding:6px 16px;font-size:12px;border-radius:6px">Monthly</button>
+      <button class="btn dash-filter-btn"    data-period="annual"  style="padding:6px 16px;font-size:12px;border-radius:6px">Annual</button>
+    </div>
+  </div>
+  <div class="mgrid">
+    <div class="m hi"><div class="ml" id="d-lbl-revenue">Revenue Secured</div><div class="mv" id="d-ytd">£0</div><div class="ms">of <span id="d-tgt-label">£3,000,000</span> target</div></div>
+    <div class="m"><div class="ml">Target %</div><div class="mv" id="d-pct">0%</div><div class="ms" id="d-pct-sub">annual goal</div></div>
+    <div class="m"><div class="ml" id="d-lbl-period">This Period</div><div class="mv" id="d-wrev">£0</div><div class="ms" id="d-wlbl">—</div></div>
+    <div class="m"><div class="ml">Pipeline Value</div><div class="mv" id="d-pipe">£0</div><div class="ms">latest entry</div></div>
+    <div class="m"><div class="ml" id="d-lbl-propval">Proposal Value Sent</div><div class="mv" id="d-propval">£0</div><div class="ms" id="d-propval-sub">this period</div></div>
+    <div class="m"><div class="ml">Sales Meetings</div><div class="mv" id="d-mtg">0</div><div class="ms" id="d-mtg-sub">this period</div></div>
+    <div class="m"><div class="ml">Proposals Sent</div><div class="mv" id="d-props">0</div><div class="ms" id="d-props-sub">this period</div></div>
+  </div>
+  <div class="tcol">
+    <div class="card"><h3>Annual Revenue Progress</h3><div class="cw" style="height:200px"><canvas id="c-annual"></canvas></div></div>
+    <div class="card"><h3 id="d-kpi-title">KPI vs Targets — Latest Period</h3><div id="d-kpis"><div class="empty">Enter weekly figures to see KPI progress.</div></div></div>
+  </div>
+  <div class="card"><h3 id="d-trend-title">Revenue Trend</h3><div class="cw"><canvas id="c-trend"></canvas></div></div>
+  <div class="card"><h3 id="d-pipe-title">Pipeline Value</h3><div class="cw"><canvas id="c-pipe"></canvas></div></div>
+</div>
+
+<div class="tab" id="tab-entry">
+  <h2>Enter Weekly Figures</h2>
+  <div class="card">
+    <div class="fg" style="margin-bottom:1rem">
+      <div class="fgrp"><label>Week ending date</label><input type="date" id="e-date"></div>
+      <div class="fgrp"><label>Week label</label><input type="text" id="e-lbl" placeholder="e.g. w/e 21 Mar 2026"></div>
+    </div>
+    <hr>
+    <h3>Sales &amp; Revenue</h3>
+    <div class="fg">
+      <div class="fgrp"><label>Sales Secured this week (£)</label><input type="number" id="e-sales" min="0" placeholder="0"></div>
+      <div class="fgrp"><label>Value of Proposals Sent this week (£)</label><input type="number" id="e-propval" min="0" placeholder="0"></div>
+      <div class="fgrp"><label>Total Pipeline Value (£)</label><input type="number" id="e-bid" min="0" placeholder="0"></div>
+    </div>
+    <hr>
+    <h3>Team Breakdown <span style="font-size:11px;color:var(--t3);font-weight:400">(leave blank if not applicable)</span></h3>
+    <div id="e-team"></div>
+    <hr>
+    <h3>Notes</h3>
+    <div class="fgrp"><textarea id="e-notes" placeholder="Five to Thrive / key wins, blockers, focus for next week…"></textarea></div>
+    <div class="acts">
+      <button class="btn p" id="btn-save">Save Week</button>
+      <button class="btn" id="btn-clear">Clear Form</button>
+    </div>
+    <div class="saved" id="e-saved">Week saved successfully.</div>
+  </div>
+</div>
+
+<div class="tab" id="tab-targets">
+  <h2>Targets &amp; KPI Progress</h2>
+  <div class="card">
+    <h3>Annual Revenue Target</h3>
+    <div class="mgrid">
+      <div class="m hi"><div class="ml">Revenue Secured YTD</div><div class="mv" id="t-ytd">£0</div></div>
+      <div class="m"><div class="ml">Annual Target</div><div class="mv" id="t-tgt">£3,000,000</div></div>
+      <div class="m"><div class="ml">Remaining</div><div class="mv" id="t-rem">£3,000,000</div></div>
+      <div class="m"><div class="ml">% Achieved</div><div class="mv" id="t-pct">0%</div></div>
+    </div>
+    <div class="pbw" style="height:11px"><div class="pb" id="t-bar" style="width:0%"></div></div>
+  </div>
+  <div class="card"><h3>Monthly Sales (vs Target)</h3><div class="cw"><canvas id="c-monthly"></canvas></div></div>
+  <div class="card">
+    <h3>Weekly KPI Tracker</h3>
+    <div style="overflow-x:auto">
+      <table><thead><tr><th>Week</th><th>Sales (£)</th><th>Leads</th><th>Emails</th><th>Mtgs Booked</th><th>Mtgs Held</th><th>Props Sent</th><th>Props Value Sent (£)</th><th>Pipeline (£)</th><th>Conv %</th></tr></thead>
+      <tbody id="kpi-body"><tr><td colspan="9" class="empty">No data yet.</td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<div class="tab" id="tab-team">
+  <h2>Team Performance</h2>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap">
+    <label style="font-family:sans-serif;font-size:13px;color:var(--t2)">Viewing week:</label>
+    <select id="team-sel" style="max-width:220px"></select>
+  </div>
+  <div class="tgrid" id="team-cards"><div class="empty" style="grid-column:1/-1">No weekly data yet.</div></div>
+</div>
+
+<div class="tab" id="tab-history">
+  <h2>Entry History</h2>
+  <div class="card">
+    <div style="overflow-x:auto">
+      <table><thead><tr><th>Week</th><th>Sales Secured (£)</th><th>YTD (£)</th><th>Target %</th><th>Props Sent</th><th>Pipeline (£)</th><th>Notes</th><th></th></tr></thead>
+      <tbody id="hist-body"><tr><td colspan="8" class="empty">No entries yet.</td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+
+<div class="tab" id="tab-exec">
+  <h2>Board Report</h2>
+
+  <div style="display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap">
+    <button class="btn exec-type-btn on" data-period="weekly">Weekly</button>
+    <button class="btn exec-type-btn" data-period="monthly">Monthly</button>
+    <button class="btn exec-type-btn" data-period="quarterly">Quarterly</button>
+    <button class="btn exec-type-btn" data-period="yearly">Yearly</button>
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1.25rem;align-items:flex-end">
+    <div class="fgrp" id="exec-sel-wrap" style="flex:0 0 auto;min-width:220px">
+      <label id="exec-sel-label">Reporting week</label>
+      <select id="exec-period-sel" style="max-width:260px"></select>
+    </div>
+    <button class="btn p" id="btn-gen-summary">Generate Report</button>
+  </div>
+
+  <div id="exec-loading" style="display:none;padding:2.5rem;text-align:center;color:var(--t2);font-size:14px">
+    <div style="width:32px;height:32px;border:3px solid var(--teal-light);border-top-color:var(--teal);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px"></div>
+    Generating board report…
+  </div>
+
+  <div id="exec-output" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:18px;font-weight:800;color:var(--navy)" id="exec-type-label">BD and Sales Report</div>
+          <div style="font-size:13px;color:var(--t3);margin-top:3px" id="exec-subtitle"></div>
+        </div>
+        <button class="btn" id="btn-copy-summary" style="font-size:12px;padding:6px 14px">Copy text</button>
+      </div>
+      <div id="exec-text" style="line-height:1.9;color:var(--text);font-size:15px"></div>
+    </div>
+  </div>
+
+  <div id="exec-error" style="display:none;background:var(--ebg);color:var(--err);padding:10px 14px;border-radius:var(--rs);font-size:13px;margin-top:8px">
+    Could not generate report — please try again.
+  </div>
+</div>
+
+<div class="tab" id="tab-settings">
+  <h2>Settings</h2>
+  <div class="card">
+    <h3>Annual Target</h3>
+    <div class="fg">
+      <div class="fgrp"><label>Annual Revenue Target (£)</label><input type="number" id="s-tgt" value="3000000" min="0"></div>
+      <div class="fgrp"><label>Fiscal Year</label><input type="text" id="s-yr" value="2026"></div>
+    </div>
+    <hr>
+    <h3>Weekly KPI Targets</h3>
+    <div class="fg">
+      <div class="fgrp"><label>Sales meetings / month target</label><input type="number" id="s-mtg" value="25" min="0"></div>
+      <div class="fgrp"><label>Lead gen emails / week target</label><input type="number" id="s-eml" value="50" min="0"></div>
+      <div class="fgrp"><label>New meetings booked / week target</label><input type="number" id="s-mbk" value="20" min="0"></div>
+      <div class="fgrp"><label>Mtg to proposal conversion % target</label><input type="number" id="s-conv" value="60" min="0" max="100"></div>
+    </div>
+    <hr>
+    <h3>Team Members</h3>
+    <div class="fgrp" style="max-width:380px"><label>Team members (comma-separated)</label><input type="text" id="s-team" value="Shailen,Tiba,Tom,Gavin,Zainab"></div>
+    <div class="acts">
+      <button class="btn p" id="btn-ss">Save Settings</button>
+      <button class="btn dng" id="btn-clr">Clear All Data</button>
+    </div>
+    <div class="saved" id="s-saved">Settings saved.</div>
+  </div>
+
+  <div class="card">
+    <h3>Manage Weekly Entries</h3>
+    <div style="font-size:13px;color:var(--t2);font-family:sans-serif;margin-bottom:1rem;line-height:1.6">
+      Select a week to delete it entirely, or edit individual team member figures for that week.
+    </div>
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:1rem">
+      <div class="fgrp" style="flex:1;min-width:200px">
+        <label>Select week to manage</label>
+        <select id="manage-week-sel"></select>
+      </div>
+      <button class="btn dng" id="btn-delete-week">Delete this week</button>
+    </div>
+
+    <div id="manage-team-wrap" style="display:none">
+      <hr>
+      <h3 style="margin-top:1rem">Edit team figures for <span id="manage-week-label"></span></h3>
+      <div style="font-size:12px;color:var(--t2);font-family:sans-serif;margin-bottom:1rem">
+        Values shown are the current saved figures. Edit any field and click Save Changes to update.
+      </div>
+      <div id="manage-team-form"></div>
+      <div class="acts" style="margin-top:1rem">
+        <button class="btn p" id="btn-save-manage">Save Changes</button>
+        <button class="btn" id="btn-cancel-manage">Cancel</button>
+      </div>
+      <div class="saved" id="manage-saved">Changes saved.</div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+(function(){
+
+// ── Airtable Storage ────────────────────────────────────────────────────────
+// Base ID: appj3TrnthKRsWUk5
+// Token: configured
+
+var AT_BASE  = 'appj3TrnthKRsWUk5';
+var AT_TOKEN = 'patoNkDVjAjNoM3Fo.9ef67a508b2b1ecc09324339dc3ec7d8476e9c7491330a4cb96d870a3a862724';
+var AT_URL   = 'https://api.airtable.com/v0/';
+
+var CFG  = {tgt:3000000,yr:'2026',mtg:25,eml:50,mbk:20,conv:60,team:['Shailen','Tiba','Tom','Gavin','Zainab']};
+var DATA = [];
+var charts = {};
+var _appReady    = false;
+var _dataRecId   = null;
+var _cfgRecId    = null;
+
+var SEED = [{"date": "2025-12-31", "lbl": "Pre-2026 Historical Sales", "sales": 275163, "bid": 0, "leads": 0, "eml": 0, "mbook": 0, "mheld": 0, "mprop": 0, "ppipe": 0, "psent": 0, "pavg": 0, "notes": "Historical sales secured prior to weekly tracking. Carried forward to reflect accurate YTD total.", "team": {}, "historical": true}, {"date": "2026-01-09", "lbl": "w/e 9 Jan 2026", "sales": 1845, "bid": 4000.0, "leads": 4.0, "eml": 10.0, "mbook": 3.0, "mheld": 5.0, "mprop": 4.0, "ppipe": 2.0, "psent": 1.0, "pavg": 4000.0, "notes": "1. New & existing proposals\n2. Send out target 1 emails - TR/EW/SR/KT/ZK\n3. Roche Pitch scoping / next steps \n4. Launch Website", "team": {"Shailen": {"leads": 0, "eml": 0, "bk": 1.0, "mtg": 1.0, "ps": 0.0, "sal": 0}, "Tiba": {"leads": 0, "eml": 3.0, "bk": 2.0, "mtg": 4.0, "ps": 0, "sal": 0}, "Gavin": {"leads": 4.0, "eml": 7.0, "bk": 0.0, "mtg": 0.0, "ps": 1.0, "sal": 1845}}}, {"date": "2026-01-16", "lbl": "w/e 16 Jan 2026", "sales": 36901, "bid": 7600.0, "leads": 4.0, "eml": 16.0, "mbook": 4.0, "mheld": 12.0, "mprop": 3.0, "ppipe": 2.0, "psent": 5.0, "pavg": 0.0, "notes": "1. New & existing proposals\n2. Follow Up target 1 emails & pipeline F/Ups - TR/EW/SR/KT/ZK\n3. Roche Pitch preparation / deck \n4. Launch Website\n5. Spotlight Social Media & Booking page", "team": {"Shailen": {"leads": 0, "eml": 0, "bk": 0, "mtg": 6.0, "ps": 1.0, "sal": 0}, "Tiba": {"leads": 1.0, "eml": 4.0, "bk": 3.0, "mtg": 4.0, "ps": 2.0, "sal": 22141}, "Tom": {"leads": 1.0, "eml": 0, "bk": 1.0, "mtg": 2.0, "ps": 1.0, "sal": 0}, "Gavin": {"leads": 2.0, "eml": 12.0, "bk": 0.0, "mtg": 0.0, "ps": 1.0, "sal": 14760}}}, {"date": "2026-01-23", "lbl": "w/e 23 Jan 2026", "sales": 81182, "bid": 12000.0, "leads": 8.0, "eml": 28.0, "mbook": 3.0, "mheld": 6.0, "mprop": 3.0, "ppipe": 0.0, "psent": 4.0, "pavg": 6000.0, "notes": "1.New & Existing Proposals\n2. Target 1 emails\n3.", "team": {"Tiba": {"leads": 0, "eml": 5.0, "bk": 2.0, "mtg": 6.0, "ps": 2.0, "sal": 75278}, "Tom": {"leads": 0, "eml": 4.0, "bk": 1.0, "mtg": 0, "ps": 0, "sal": 0}, "Gavin": {"leads": 8.0, "eml": 19.0, "bk": 0, "mtg": 0, "ps": 2.0, "sal": 5904}}}, {"date": "2026-01-30", "lbl": "w/e 30 Jan 2026", "sales": 2952, "bid": 14000.0, "leads": 8.0, "eml": 22.0, "mbook": 2.0, "mheld": 4.0, "mprop": 0, "ppipe": 0, "psent": 3.0, "pavg": 4000.0, "notes": "1", "team": {"Tiba": {"leads": 6.0, "eml": 0, "bk": 2.0, "mtg": 4.0, "ps": 2.0, "sal": 0}, "Gavin": {"leads": 2.0, "eml": 22.0, "bk": 0, "mtg": 0, "ps": 1.0, "sal": 2952}}}, {"date": "2026-02-06", "lbl": "w/e 6 Feb 2026", "sales": 200200, "bid": 4000.0, "leads": 12.0, "eml": 12.0, "mbook": 0, "mheld": 8.0, "mprop": 1.0, "ppipe": 3.0, "psent": 1.0, "pavg": 4000.0, "notes": "1", "team": {"Shailen": {"leads": 0, "eml": 0, "bk": 0, "mtg": 1.0, "ps": 0.0, "sal": 0}, "Tiba": {"leads": 9.0, "eml": 0, "bk": 0, "mtg": 7.0, "ps": 0, "sal": 200200}, "Gavin": {"leads": 3.0, "eml": 12.0, "bk": 0, "mtg": 0, "ps": 1.0, "sal": 0}}}, {"date": "2026-02-13", "lbl": "w/e 13 Feb 2026", "sales": 0, "bid": 0, "leads": 0, "eml": 0, "mbook": 0, "mheld": 6.0, "mprop": 1.0, "ppipe": 2.0, "psent": 0, "pavg": 0, "notes": "1. Website Update\n2. Roche Deck", "team": {"Shailen": {"leads": 0, "eml": 0, "bk": 0, "mtg": 3.0, "ps": 0, "sal": 0}, "Tiba": {"leads": 0, "eml": 0, "bk": 0, "mtg": 3.0, "ps": 0, "sal": 0}}}, {"date": "2026-02-20", "lbl": "w/e 20 Feb 2026", "sales": 0, "bid": 0, "leads": 0, "eml": 0, "mbook": 0, "mheld": 4.0, "mprop": 2.0, "ppipe": 0, "psent": 1.0, "pavg": 0, "notes": "", "team": {"Shailen": {"leads": 0, "eml": 0, "bk": 0, "mtg": 1.0, "ps": 1.0, "sal": 0}, "Tiba": {"leads": 0, "eml": 0, "bk": 0, "mtg": 3.0, "ps": 0, "sal": 0}}}, {"date": "2026-02-27", "lbl": "w/e 27 Feb 2026", "sales": 0, "bid": 0, "leads": 0, "eml": 6.0, "mbook": 0, "mheld": 3.0, "mprop": 1.0, "ppipe": 3.0, "psent": 2.0, "pavg": 0, "notes": "", "team": {"Shailen": {"leads": 0, "eml": 0, "bk": 0, "mtg": 1.0, "ps": 0, "sal": 0}, "Tiba": {"leads": 0, "eml": 6.0, "bk": 0, "mtg": 2.0, "ps": 2.0, "sal": 0}}}, {"date": "2026-03-06", "lbl": "w/e 6 Mar 2026", "sales": 0, "bid": 31350.0, "leads": 0, "eml": 0, "mbook": 0, "mheld": 5.0, "mprop": 5.0, "ppipe": 4.0, "psent": 7.0, "pavg": 0, "notes": "", "team": {"Shailen": {"leads": 0, "eml": 0, "bk": 0, "mtg": 0.0, "ps": 3.0, "sal": 0}, "Tiba": {"leads": 0, "eml": 0, "bk": 0, "mtg": 5.0, "ps": 4.0, "sal": 0}}}, {"date": "2026-03-13", "lbl": "w/e 13 Mar 2026", "sales": 45300, "bid": 205000.0, "leads": 1.0, "eml": 5.0, "mbook": 0, "mheld": 5.0, "mprop": 0, "ppipe": 3.0, "psent": 2.0, "pavg": 0, "notes": "", "team": {"Shailen": {"leads": 0, "eml": 0, "bk": 0, "mtg": 1.0, "ps": 0, "sal": 0}, "Tiba": {"leads": 0, "eml": 0, "bk": 0, "mtg": 4.0, "ps": 0, "sal": 0}, "Tom": {"leads": 1.0, "eml": 5.0, "bk": 0, "mtg": 0, "ps": 1.0, "sal": 45300}, "Zainab": {"leads": 0, "eml": 0, "bk": 0, "mtg": 0, "ps": 1.0, "sal": 0}}}];
+
+function atHeaders(){
+  return {'Authorization':'Bearer '+AT_TOKEN,'Content-Type':'application/json'};
+}
+function atTable(k){ return k==='sb_cfg'?'SalesConfig':'SalesData'; }
+
+async function atGet(key){
+  try{
+    var h=atHeaders();
+    var url=AT_URL+AT_BASE+'/'+encodeURIComponent(atTable(key))
+           +'?filterByFormula='+encodeURIComponent("{Key}='"+key+"'")+'&maxRecords=1';
+    var r=await fetch(url,{headers:h});
+    var d=await r.json();
+    if(d.records&&d.records.length){
+      var rec=d.records[0];
+      if(key==='sb_cfg')_cfgRecId=rec.id; else _dataRecId=rec.id;
+      return rec.fields.DataJSON?JSON.parse(rec.fields.DataJSON):null;
+    }
+    return null;
+  }catch(e){console.warn('atGet error',e);return null;}
+}
+
+async function atSet(key,value){
+  try{
+    var h=atHeaders();
+    var recId=key==='sb_cfg'?_cfgRecId:_dataRecId;
+    var body=JSON.stringify({fields:{Key:key,DataJSON:JSON.stringify(value)}});
+    if(recId){
+      await fetch(AT_URL+AT_BASE+'/'+encodeURIComponent(atTable(key))+'/'+recId,
+        {method:'PATCH',headers:h,body:body});
+    }else{
+      var r=await fetch(AT_URL+AT_BASE+'/'+encodeURIComponent(atTable(key)),
+        {method:'POST',headers:h,body:body});
+      var c=await r.json();
+      if(c.id){if(key==='sb_cfg')_cfgRecId=c.id;else _dataRecId=c.id;}
+    }
+  }catch(e){console.warn('atSet error',e);}
+}
+
+async function storageGet(key){return await atGet(key);}
+async function storageSet(key,value){await atSet(key,value);}
+async function sset(key,value){await atSet(key,value);}
+function sget(key){
+  if(key==='sb_data')return DATA;
+  if(key==='sb_cfg')return CFG;
+  return null;
+}
+async function initApp(){
+  document.getElementById('app-loading').style.display='flex';
+  document.getElementById('app-main').style.display='none';
+  try{
+    var savedCfg=await atGet('sb_cfg');
+    if(savedCfg) Object.assign(CFG,savedCfg);
+
+    var savedData=await atGet('sb_data');
+    if(savedData&&savedData.length>0){
+      DATA.length=0; savedData.forEach(function(e){DATA.push(e);});
+    }else{
+      DATA.length=0; SEED.forEach(function(e){DATA.push(e);});
+      await atSet('sb_data',DATA);
+    }
+
+    // ── Data integrity: ensure historical carry-forward entry exists ──────
+    var hasHistorical = DATA.some(function(e){ return e.historical===true; });
+    if (!hasHistorical) {
+      // Inject it at the start
+      DATA.unshift({
+        date:'2025-12-31', lbl:'Pre-2026 Historical Sales', sales:275163,
+        bid:0, leads:0, eml:0, mbook:0, mheld:0, mprop:0, ppipe:0, psent:0,
+        pavg:0, notes:'Historical sales secured prior to weekly tracking. Carried forward to reflect accurate YTD total.',
+        team:{}, historical:true
+      });
+      DATA.sort(function(a,b){return a.date<b.date?-1:1;});
+      await atSet('sb_data', DATA);
+    }
+
+  }catch(e){
+    console.warn('Airtable init failed:',e);
+    if(DATA.length===0){DATA.length=0;SEED.forEach(function(e){DATA.push(e);});}
+    document.getElementById('app-status').textContent='Could not reach Airtable — showing cached data.';
+  }
+
+  document.getElementById('yr-badge').textContent=CFG.yr;
+  document.getElementById('app-loading').style.display='none';
+  document.getElementById('app-main').style.display='block';
+  buildTeamForm(); renderDash(); _appReady=true;
+}
+
+async function sset(key, value) {
+  await storageSet(key, value);
+}
+
+function sget(key) {
+  // sync shim — only used during render, actual data already loaded
+  if (key === 'sb_data') return DATA;
+  if (key === 'sb_cfg')  return CFG;
+  return null;
+}
+
+
+function f(n){if(!n||isNaN(n))return'£0';return'£'+Math.round(n).toLocaleString('en-GB');}
+function pc(a,b){if(!b)return 0;return Math.min(Math.round(a/b*100),999);}
+function bc(p){return p>=80?'':'pb '+(p>=50?'w':'d');}
+function tc(p){return p>=80?'ok':p>=50?'wn':'er';}
+function ytd(){return DATA.reduce(function(s,e){return s+(parseFloat(e.sales)||0);},0);}
+function last(){var w=DATA.filter(function(e){return !e.historical;});return w.length?w[w.length-1]:null;}
+
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  document.querySelectorAll('#nav button').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('tab-'+id).classList.add('on');
+  var nb=document.querySelector('#nav button[data-tab="'+id+'"]');
+  if(nb)nb.classList.add('on');
+  var fn={dashboard:renderDash,entry:buildTeamForm,targets:renderTargets,team:renderTeamPage,history:renderHistory,settings:populateSettings,exec:renderExecPage};
+  if(fn[id])fn[id]();
+}
+
+document.getElementById('nav').addEventListener('click',function(e){
+  var btn=e.target.closest('button[data-tab]');
+  if(btn)showTab(btn.dataset.tab);
+});
+
+function buildTeamForm(){
+  var wrap=document.getElementById('e-team');
+  var html='<div class="fg">';
+  CFG.team.forEach(function(m){
+    html+='<div style="background:var(--s2);padding:11px;border-radius:var(--rs)">'
+      +'<div style="font-family:sans-serif;font-size:13px;font-weight:500;margin-bottom:9px;color:var(--gt)">'+m+'</div>'
+      +'<div class="fg" style="gap:8px">'
+      +'<div class="fgrp"><label>📋 # Proposals to Do</label><input type="number" id="tm-'+m+'-ptn" min="0" placeholder="0" style="border-color:var(--teal);background:var(--teal-light)"></div>'
+      +'<div class="fgrp" style="flex:2;min-width:200px"><label>📋 Proposals to Do This Week</label><input type="text" id="tm-'+m+'-ptd" placeholder="e.g. Acme renewal, NHS tender, follow-up Smith & Co" style="border-color:var(--teal);background:var(--teal-light)"></div>'
+      +'<div class="fgrp"><label>Leads</label><input type="number" id="tm-'+m+'-leads" min="0" placeholder="0"></div>'
+      +'<div class="fgrp"><label>Emails</label><input type="number" id="tm-'+m+'-eml" min="0" placeholder="0"></div>'
+      +'<div class="fgrp"><label>Mtgs Booked</label><input type="number" id="tm-'+m+'-bk" min="0" placeholder="0"></div>'
+      +'<div class="fgrp"><label>Sales Mtgs</label><input type="number" id="tm-'+m+'-mtg" min="0" placeholder="0"></div>'
+      +'<div class="fgrp"><label>Props Sent</label><input type="number" id="tm-'+m+'-ps" min="0" placeholder="0"></div>'
+      +'<div class="fgrp"><label>Proposal Value Sent (£)</label><input type="number" id="tm-'+m+'-pv" min="0" placeholder="0"></div>'
+      +'<div class="fgrp"><label>Sales Secured (£)</label><input type="number" id="tm-'+m+'-sal" min="0" placeholder="0"></div>'
+      +'</div></div>';
+  });
+  wrap.innerHTML=html+'</div>';
+}
+
+function gv(id){var el=document.getElementById(id);return el?(parseFloat(el.value)||0):0;}
+function gs(id){var el=document.getElementById(id);return el?el.value:'';}
+
+document.getElementById('btn-save').addEventListener('click',function(){
+  var date=gs('e-date');
+  if(!date){alert('Please select a week ending date.');return;}
+  var td={};
+  CFG.team.forEach(function(m){
+    td[m]={leads:gv('tm-'+m+'-leads'),eml:gv('tm-'+m+'-eml'),bk:gv('tm-'+m+'-bk'),mtg:gv('tm-'+m+'-mtg'),ps:gv('tm-'+m+'-ps'),pv:gv('tm-'+m+'-pv'),sal:gv('tm-'+m+'-sal'),ptd:gs('tm-'+m+'-ptd'),ptn:gv('tm-'+m+'-ptn')};
+  });
+  var teamLeads=0,teamEml=0,teamBk=0,teamMtg=0,teamPs=0,teamPv=0,teamSal=0;
+  CFG.team.forEach(function(m){
+    teamLeads+=gv('tm-'+m+'-leads'); teamEml+=gv('tm-'+m+'-eml');
+    teamBk+=gv('tm-'+m+'-bk');      teamMtg+=gv('tm-'+m+'-mtg');
+    teamPs+=gv('tm-'+m+'-ps');      teamPv+=gv('tm-'+m+'-pv');
+    teamSal+=gv('tm-'+m+'-sal');
+  });
+  var entryPropVal=gv('e-propval')||teamPv;
+  var entrySales=gv('e-sales')||teamSal;
+  var entry={date:date,lbl:gs('e-lbl')||date,
+    sales:entrySales,bid:gv('e-bid'),propval:entryPropVal,
+    leads:teamLeads,eml:teamEml,mbook:teamBk,mheld:teamMtg,
+    mprop:0,ppipe:0,psent:teamPs,pavg:0,
+    notes:gs('e-notes'),team:td};
+  var idx=DATA.findIndex(function(e){return e.date===date;});
+  if(idx>=0){
+    var existing=DATA[idx];
+    // Add numeric fields onto existing values rather than replace
+    var numFields=['sales','bid','propval','leads','eml','mbook','mheld','mprop','ppipe','psent','pavg'];
+    numFields.forEach(function(k){ entry[k]=(existing[k]||0)+(entry[k]||0); });
+    // Merge team data — add each person's values onto existing
+    if(existing.team){
+      CFG.team.forEach(function(m){
+        if(existing.team[m]){
+          var et=existing.team[m], nt=entry.team[m]||{};
+          entry.team[m]={
+            leads:(et.leads||0)+(nt.leads||0),
+            eml:  (et.eml||0)  +(nt.eml||0),
+            bk:   (et.bk||0)   +(nt.bk||0),
+            mtg:  (et.mtg||0)  +(nt.mtg||0),
+            ps:   (et.ps||0)   +(nt.ps||0),
+            pv:   (et.pv||0)   +(nt.pv||0),
+            sal:  (et.sal||0)  +(nt.sal||0),
+            ptd:  nt.ptd||et.ptd||'',
+            ptn:  nt.ptn||et.ptn||0
+          };
+        }
+      });
+    }
+    // Keep existing label/notes unless new ones provided
+    if(!gs('e-lbl')) entry.lbl=existing.lbl;
+    if(!gs('e-notes')) entry.notes=existing.notes;
+    DATA[idx]=entry;
+  } else {
+    DATA.push(entry);
+  }
+  DATA.sort(function(a,b){return a.date<b.date?-1:1;});
+  sset('sb_data',DATA);
+  renderDash();
+  var msg=document.getElementById('e-saved');
+  msg.style.display='block';
+  setTimeout(function(){msg.style.display='none';},2800);
+});
+
+document.getElementById('btn-clear').addEventListener('click',function(){
+  document.querySelectorAll('#tab-entry input,#tab-entry textarea').forEach(function(i){i.value='';});
+});
+
+document.getElementById('team-sel').addEventListener('change',renderTeam);
+
+document.getElementById('btn-ss').addEventListener('click',function(){
+  CFG.tgt=parseFloat(gs('s-tgt'))||3000000;
+  CFG.yr=gs('s-yr')||'2026';
+  CFG.mtg=parseFloat(gs('s-mtg'))||25;
+  CFG.eml=parseFloat(gs('s-eml'))||50;
+  CFG.mbk=parseFloat(gs('s-mbk'))||20;
+  CFG.conv=parseFloat(gs('s-conv'))||60;
+  CFG.team=gs('s-team').split(',').map(function(s){return s.trim();}).filter(Boolean);
+  sset('sb_cfg', CFG);
+  document.getElementById('yr-badge').textContent=CFG.yr;
+  var msg=document.getElementById('s-saved');
+  msg.style.display='block';
+  setTimeout(function(){msg.style.display='none';},2500);
+});
+
+document.getElementById('btn-clr').addEventListener('click',function(){
+  if(!confirm('Delete ALL weekly entries permanently?'))return;
+  DATA.length=0; sset('sb_data', DATA); renderHistory();
+});
+
+document.getElementById('hist-body').addEventListener('click',function(e){
+  var btn=e.target.closest('button[data-del]');
+  if(!btn)return;
+  if(!confirm('Delete this entry?'))return;
+  DATA.splice(parseInt(btn.dataset.del),1);
+  sset('sb_data', DATA); renderHistory();
+});
+
+function mkChart(id,cfg){
+  if(charts[id])charts[id].destroy();
+  var canvas=document.getElementById(id);
+  if(!canvas)return;
+  charts[id]=new Chart(canvas.getContext('2d'),cfg);
+}
+
+var dashPeriod = 'weekly';
+
+// Wire up filter buttons
+document.getElementById('tab-dashboard').addEventListener('click', function(e){
+  var btn = e.target.closest('.dash-filter-btn');
+  if (!btn) return;
+  dashPeriod = btn.dataset.period;
+  document.querySelectorAll('.dash-filter-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  renderDash();
+});
+
+function getDashEntries(){
+  var weekly = DATA.filter(function(e){ return !e.historical; });
+  var now = new Date();
+  if (dashPeriod === 'weekly') {
+    // Latest week only
+    return weekly.length ? [weekly[weekly.length-1]] : [];
+  } else if (dashPeriod === 'monthly') {
+    // Current calendar month
+    var mo = now.getMonth(), yr = now.getFullYear();
+    var filtered = weekly.filter(function(e){
+      var d = new Date(e.date);
+      return d.getFullYear()===yr && d.getMonth()===mo;
+    });
+    // If nothing this month, show most recent month available
+    if (!filtered.length && weekly.length) {
+      var last = new Date(weekly[weekly.length-1].date);
+      filtered = weekly.filter(function(e){
+        var d = new Date(e.date);
+        return d.getFullYear()===last.getFullYear() && d.getMonth()===last.getMonth();
+      });
+    }
+    return filtered;
+  } else {
+    // Annual — all non-historical entries for the configured year
+    return weekly.filter(function(e){ return e.date.substring(0,4)===CFG.yr; });
+  }
+}
+
+function dashRollup(entries){
+  var sales=0,bid=0,propval=0,leads=0,eml=0,mbook=0,mheld=0,mprop=0,psent=0;
+  entries.forEach(function(e){
+    sales   += (e.sales||0);
+    bid      = Math.max(bid, (e.bid||0)); // use latest pipeline figure
+    propval += (e.propval||0);
+    leads   += (e.leads||0);
+    eml     += (e.eml||0);
+    mbook   += (e.mbook||0);
+    mheld   += (e.mheld||0);
+    mprop   += (e.mprop||0);
+    psent   += (e.psent||0);
+    // also sum from team if available
+    if(e.team){ Object.keys(e.team).forEach(function(m){
+      var t=e.team[m];
+      leads  += 0; // already counted above from top-level
+      eml    += 0;
+    });}
+  });
+  // prefer team-summed values if top-level is 0
+  var tmtg=0,tps=0,teml=0,tbk=0,tleads=0,tpv=0,tsal=0;
+  entries.forEach(function(e){
+    if(e.team){ Object.keys(e.team).forEach(function(m){
+      var t=e.team[m];
+      tmtg  +=(t.mtg||0); tps+=(t.ps||0); teml+=(t.eml||0);
+      tbk   +=(t.bk||0);  tleads+=(t.leads||0); tpv+=(t.pv||0); tsal+=(t.sal||0);
+    });}
+  });
+  return {
+    sales:   sales,
+    bid:     entries.length ? (entries[entries.length-1].bid||0) : 0,
+    propval: propval||tpv,
+    leads:   leads||tleads,
+    eml:     eml||teml,
+    mbook:   mbook||tbk,
+    mheld:   mheld||tmtg,
+    mprop:   mprop,
+    psent:   psent||tps,
+    teamMtg: tmtg, teamPs: tps, teamEml: teml, teamBk: tbk, teamPv: tpv
+  };
+}
+
+function renderDash(){
+  var tgt = CFG.tgt;
+  var allWeekly = DATA.filter(function(e){ return !e.historical; });
+  var entries   = getDashEntries();
+  var rol       = dashRollup(entries);
+  var le        = last(); // always latest weekly entry for pipeline
+
+  // Heading & labels
+  var headings   = {weekly:'Weekly Overview', monthly:'Monthly Overview', annual:'Annual Overview'};
+  var periodSubs = {weekly:'this week', monthly:'this month', annual:'this year'};
+  var sub = periodSubs[dashPeriod];
+  document.getElementById('d-heading').textContent     = headings[dashPeriod];
+  document.getElementById('d-lbl-period').textContent  = dashPeriod==='weekly'?'This Week Secured': dashPeriod==='monthly'?'This Month Secured':'This Year Secured';
+  document.getElementById('d-propval-sub').textContent = sub;
+  document.getElementById('d-mtg-sub').textContent     = sub;
+  document.getElementById('d-props-sub').textContent   = sub;
+  document.getElementById('d-kpi-title').textContent   = 'KPI vs Targets — '+(dashPeriod==='weekly'?'Latest Week':dashPeriod==='monthly'?'This Month':'This Year');
+  document.getElementById('d-trend-title').textContent = 'Revenue Trend ('+(dashPeriod==='weekly'?'by Week':dashPeriod==='monthly'?'by Week this Month':'by Month')+')';
+  document.getElementById('d-pipe-title').textContent  = 'Pipeline Value ('+(dashPeriod==='weekly'?'by Week':dashPeriod==='monthly'?'by Week this Month':'by Month')+')';
+
+  // YTD hero tile always shows full annual total regardless of filter
+  var ytdTot = ytd(), ytdPct = pc(ytdTot, tgt);
+  document.getElementById('d-ytd').textContent       = f(ytdTot);
+  document.getElementById('d-tgt-label').textContent = f(tgt);
+  document.getElementById('d-pct').textContent       = ytdPct+'%';
+  document.getElementById('d-pct-sub').textContent   = 'annual goal';
+  document.getElementById('d-lbl-revenue').textContent = 'YTD Revenue';
+
+  // Period metrics
+  document.getElementById('d-wrev').textContent    = f(rol.sales);
+  document.getElementById('d-wlbl').textContent    = entries.length ? (entries.length===1?(entries[0].lbl||entries[0].date):'('+entries.length+' entries)') : '—';
+  document.getElementById('d-pipe').textContent    = le ? f(le.bid) : '£0';
+  document.getElementById('d-propval').textContent = f(rol.propval||rol.teamPv);
+
+  var dashMtg    = rol.teamMtg || rol.mheld;
+  var dashProps  = rol.teamPs  || rol.psent;
+  var dashEml    = rol.teamEml || rol.eml;
+  var dashBk     = rol.teamBk  || rol.mbook;
+  document.getElementById('d-mtg').textContent   = dashMtg;
+  document.getElementById('d-props').textContent = dashProps;
+
+  // KPI panel
+  var kd = document.getElementById('d-kpis');
+  if (!entries.length) {
+    kd.innerHTML = '<div class="empty">No data for this period.</div>';
+  } else {
+    // Scale targets by period
+    var mtgT = dashPeriod==='weekly' ? CFG.mtg/4 : dashPeriod==='monthly' ? CFG.mtg : CFG.mtg*12;
+    var emlT = dashPeriod==='weekly' ? CFG.eml   : dashPeriod==='monthly' ? CFG.eml*4 : CFG.eml*52;
+    var mbkT = dashPeriod==='weekly' ? CFG.mbk   : dashPeriod==='monthly' ? CFG.mbk*4 : CFG.mbk*52;
+    mtgT = Math.round(mtgT); emlT = Math.round(emlT); mbkT = Math.round(mbkT);
+    var dashConv = dashMtg>0 ? Math.round(rol.mprop/dashMtg*100) : 0;
+    var kpis = [
+      {l:'Sales Meetings (target '+mtgT+')', v:dashMtg, t:mtgT},
+      {l:'Lead Gen Emails (target '+emlT+')', v:dashEml, t:emlT},
+      {l:'Meetings Booked (target '+mbkT+')', v:dashBk,  t:mbkT},
+      {l:'Mtg→Proposal Conv (target '+CFG.conv+'%)', v:dashConv, t:CFG.conv, pct:true}
+    ];
+    kd.innerHTML = kpis.map(function(k){
+      var p2=pc(k.v,k.t);
+      return '<div style="margin-bottom:13px">'
+        +'<div class="trow"><span class="tl">'+k.l+'</span><span class="tp '+tc(p2)+'">'+(k.pct?k.v+'%':k.v)+' / '+(k.pct?k.t+'%':k.t)+'</span></div>'
+        +'<div class="pbw"><div class="pb '+bc(p2)+'" style="width:'+Math.min(p2,100)+'%"></div></div>'
+        +'</div>';
+    }).join('');
+  }
+
+  // Annual doughnut always shows full YTD
+  mkChart('c-annual',{type:'doughnut',data:{labels:['Secured','Remaining'],datasets:[{data:[ytdTot,Math.max(0,tgt-ytdTot)],backgroundColor:['#007878','#e0f4f4'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return' '+f(c.raw);}}}}}});
+
+  // Trend & pipeline charts scoped to filter
+  if (dashPeriod === 'annual') {
+    // Group by month
+    var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var moSales=Array(12).fill(0), moPipe=Array(12).fill(0);
+    allWeekly.filter(function(e){return e.date.substring(0,4)===CFG.yr;}).forEach(function(e){
+      var mo=new Date(e.date).getMonth();
+      moSales[mo]+=(e.sales||0);
+      moPipe[mo]=Math.max(moPipe[mo],(e.bid||0));
+    });
+    var cumA=0, cumSales=moSales.map(function(v){cumA+=v;return cumA;});
+    mkChart('c-trend',{type:'bar',data:{labels:months,datasets:[{label:'Monthly',data:moSales,backgroundColor:'rgba(0,153,153,0.35)',order:2},{label:'Cumulative',data:cumSales,type:'line',borderColor:'#007878',backgroundColor:'transparent',tension:.3,order:1,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return' '+f(c.raw);}}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'£'+(v/1000).toFixed(0)+'k';}}},x:{ticks:{autoSkip:false}}}}});
+    mkChart('c-pipe',{type:'bar',data:{labels:months,datasets:[{label:'Pipeline',data:moPipe,backgroundColor:'rgba(0,120,120,0.2)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return' '+f(c.raw);}}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'£'+(v/1000).toFixed(0)+'k';}}},x:{ticks:{autoSkip:false}}}}});
+  } else {
+    // Weekly or monthly — show individual entries
+    var chartData = dashPeriod==='weekly' ? allWeekly : entries;
+    var labs  = chartData.map(function(e){return e.lbl||e.date;});
+    var histBase = ytdTot - allWeekly.reduce(function(s,e){return s+(e.sales||0);},0);
+    var runC  = dashPeriod==='monthly' ? entries.slice(0,entries.indexOf(chartData[0])).reduce(function(s,e){return s+(e.sales||0);},0)+histBase : histBase;
+    var cumC  = chartData.map(function(e){runC+=(e.sales||0);return runC;});
+    var wkC   = chartData.map(function(e){return e.sales||0;});
+    var pvC   = chartData.map(function(e){return e.bid||0;});
+    mkChart('c-trend',{type:'bar',data:{labels:labs,datasets:[{label:'Sales',data:wkC,backgroundColor:'rgba(0,153,153,0.35)',order:2},{label:'YTD',data:cumC,type:'line',borderColor:'#007878',backgroundColor:'transparent',tension:.3,order:1,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return' '+f(c.raw);}}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'£'+(v/1000).toFixed(0)+'k';}}},x:{ticks:{autoSkip:false,maxRotation:45}}}}});
+    mkChart('c-pipe',{type:'bar',data:{labels:labs,datasets:[{label:'Pipeline',data:pvC,backgroundColor:'rgba(0,120,120,0.2)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return' '+f(c.raw);}}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'£'+(v/1000).toFixed(0)+'k';}}},x:{ticks:{autoSkip:false,maxRotation:45}}}}});
+  }
+}
+
+function renderTargets(){
+  var tot=ytd(),tgt=CFG.tgt,p=pc(tot,tgt);
+  document.getElementById('t-ytd').textContent=f(tot);
+  document.getElementById('t-tgt').textContent=f(tgt);
+  document.getElementById('t-rem').textContent=f(Math.max(0,tgt-tot));
+  document.getElementById('t-pct').textContent=p+'%';
+  var bar=document.getElementById('t-bar');
+  bar.style.width=Math.min(p,100)+'%';
+  bar.className='pb '+(p<50?'d':p<80?'w':'');
+
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],mo=Array(12).fill(0);
+  DATA.forEach(function(e){mo[new Date(e.date).getMonth()]+=(e.sales||0);});
+  var mt=CFG.tgt/12;
+  mkChart('c-monthly',{type:'bar',data:{labels:months,datasets:[{label:'Actual',data:mo,backgroundColor:'#007878'},{label:'Target',data:Array(12).fill(mt),type:'line',borderColor:'#b07010',borderDash:[5,3],backgroundColor:'transparent',pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return' '+f(c.raw);}}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'£'+(v/1000).toFixed(0)+'k';}}}}}});
+
+  var tbody=document.getElementById('kpi-body');
+  if(!DATA.length){tbody.innerHTML='<tr><td colspan="9" class="empty">No data yet.</td></tr>';return;}
+  var weeklyRows=DATA.filter(function(e){return !e.historical;});
+  if(!weeklyRows.length){tbody.innerHTML='<tr><td colspan="9" class="empty">No weekly data yet.</td></tr>';return;}
+  tbody.innerHTML=weeklyRows.map(function(e){
+    var cv=e.mheld?Math.round(e.mprop/e.mheld*100):0;
+    var cb=cv>=CFG.conv?'g':cv>=CFG.conv*.7?'a':'r';
+    return'<tr><td>'+(e.lbl||e.date)+'</td><td>'+f(e.sales)+'</td><td>'+(e.leads||0)+'</td><td>'+(e.eml||0)+'</td><td>'+(e.mbook||0)+'</td><td>'+(e.mheld||0)+'</td><td>'+(e.psent||0)+'</td><td>'+f(e.bid)+'</td><td><span class="badge '+cb+'">'+cv+'%</span></td></tr>';
+  }).join('');
+}
+
+function renderTeamPage(){
+  var sel=document.getElementById('team-sel');
+  var weeklyData=DATA.filter(function(e){return !e.historical;});
+  sel.innerHTML=weeklyData.map(function(e,i){
+    var realIdx=DATA.indexOf(e);
+    return'<option value="'+realIdx+'">'+(e.lbl||e.date)+'</option>';
+  }).join('');
+  if(weeklyData.length)sel.value=DATA.indexOf(weeklyData[weeklyData.length-1]);
+  renderTeam();
+}
+
+function renderTeam(){
+  var sel=document.getElementById('team-sel'),idx=parseInt(sel.value),wrap=document.getElementById('team-cards');
+  if(!DATA.length||isNaN(idx)){wrap.innerHTML='<div class="empty" style="grid-column:1/-1">No weekly data yet.</div>';return;}
+  var e=DATA[idx];
+  var avcls={Tiba:'b',Tom:'c',Gavin:'c',Zainab:'f'};
+  wrap.innerHTML=CFG.team.map(function(m){
+    var td=(e.team&&e.team[m])||{};
+    return'<div class="tcard"><div class="tch"><div class="av '+(avcls[m]||'')+'">'+m.slice(0,2).toUpperCase()+'</div>'
+      +'<div><div style="font-family:sans-serif;font-size:14px;font-weight:500">'+m+'</div>'
+      +'<div style="font-size:12px;color:var(--t3);font-family:sans-serif">'+(e.lbl||e.date)+'</div></div></div>'
+      +'<div class="sr"><span class="k">Sales Meetings</span><span class="v">'+(td.mtg||0)+'</span></div>'
+      +'<div class="sr"><span class="k">Meetings Booked</span><span class="v">'+(td.bk||0)+'</span></div>'
+      +'<div class="sr"><span class="k">New Leads</span><span class="v">'+(td.leads||0)+'</span></div>'
+      +'<div class="sr"><span class="k">Lead Gen Emails</span><span class="v">'+(td.eml||0)+'</span></div>'
+      +'<div class="sr"><span class="k">Proposals Sent</span><span class="v">'+(td.ps||0)+'</span></div>'
+      +'<div class="sr"><span class="k">Proposal Value Sent</span><span class="v">'+f(td.pv||0)+'</span></div>'
+      +'<div class="sr"><span class="k">Sales Secured</span><span class="v">'+f(td.sal||0)+'</span></div>'
+      +(td.ptd||td.ptn?'<div style="margin-top:9px;padding:8px 10px;background:var(--teal-light);border-radius:var(--rs);border:.5px solid var(--border)"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--teal-text);margin-bottom:4px">📋 Proposals to Do</div>'+(td.ptn?'<div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:3px">'+td.ptn+' proposal'+(td.ptn!==1?'s':'')+'</div>':'')+(td.ptd?'<div style="font-size:12px;color:var(--text)">'+td.ptd+'</div>':'')+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+function renderHistory(){
+  var tbody=document.getElementById('hist-body');
+  if(!DATA.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No entries yet.</td></tr>';return;}
+  var run=0;
+  tbody.innerHTML=DATA.map(function(e,i){
+    run+=(e.sales||0);
+    var p=pc(run,CFG.tgt),cls=p>=80?'g':p>=50?'a':'r';
+    var isHist=e.historical;
+    var rowStyle=isHist?'style="background:var(--teal-light)"':'';
+    var label=(e.lbl||e.date)+(isHist?' <span style="font-size:10px;background:var(--teal);color:#fff;padding:1px 7px;border-radius:10px;vertical-align:middle;font-weight:700;letter-spacing:.04em">HISTORICAL</span>':'');
+    var deleteBtn=isHist
+      ?'<span style="font-size:11px;color:var(--t3);font-style:italic">carry-forward</span>'
+      :'<button class="btn dng" style="padding:3px 9px;font-size:11px" data-del="'+i+'">Delete</button>';
+    return'<tr '+rowStyle+'><td>'+label+'</td><td>'+f(e.sales)+'</td><td>'+f(run)+'</td>'
+      +'<td><span class="badge '+cls+'">'+p+'%</span></td>'
+      +'<td>'+(e.psent||0)+'</td><td>'+f(e.bid)+'</td>'
+      +'<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t2)">'+(e.notes||'—')+'</td>'
+      +'<td>'+deleteBtn+'</td></tr>';
+  }).join('');
+}
+
+
+function populateManageSel() {
+  var sel = document.getElementById('manage-week-sel');
+  var weeklyData = DATA.filter(function(e){ return !e.historical; });
+  sel.innerHTML = weeklyData.map(function(e){
+    var realIdx = DATA.indexOf(e);
+    return '<option value="'+realIdx+'">'+(e.lbl||e.date)+'</option>';
+  }).join('');
+  if (weeklyData.length) sel.value = DATA.indexOf(weeklyData[weeklyData.length-1]);
+  document.getElementById('manage-team-wrap').style.display = 'none';
+}
+
+function populateSettings(){
+  document.getElementById('s-tgt').value  = CFG.tgt;
+  document.getElementById('s-yr').value   = CFG.yr;
+  document.getElementById('s-mtg').value  = CFG.mtg;
+  document.getElementById('s-eml').value  = CFG.eml;
+  document.getElementById('s-mbk').value  = CFG.mbk;
+  document.getElementById('s-conv').value = CFG.conv;
+  document.getElementById('s-team').value = CFG.team.join(',');
+  populateManageSel();
+}
+
+document.getElementById('manage-week-sel').addEventListener('change', function() {
+  document.getElementById('manage-team-wrap').style.display = 'none';
+});
+
+document.getElementById('btn-delete-week').addEventListener('click', function(){
+  var idx = parseInt(document.getElementById('manage-week-sel').value);
+  if (isNaN(idx)) return;
+  var lbl = DATA[idx].lbl || DATA[idx].date;
+  if (!confirm('Delete the entry for "'+lbl+'"? This cannot be undone.')) return;
+  DATA.splice(idx, 1);
+  sset('sb_data', DATA);
+  renderDash();
+  populateManageSel();
+  var msg = document.getElementById('manage-saved');
+  msg.textContent = '"'+lbl+'" deleted.';
+  msg.style.display = 'block';
+  setTimeout(function(){ msg.style.display='none'; msg.textContent='Changes saved.'; }, 3000);
+});
+
+document.getElementById('manage-week-sel').addEventListener('dblclick', function(){
+  openManageEdit();
+});
+
+// Also show edit form with an "Edit figures" button - add it dynamically
+(function(){
+  var selWrap = document.getElementById('manage-week-sel').parentElement.parentElement;
+  var editBtn = document.createElement('button');
+  editBtn.className = 'btn';
+  editBtn.textContent = 'Edit figures';
+  editBtn.style.alignSelf = 'flex-end';
+  editBtn.id = 'btn-edit-week';
+  selWrap.appendChild(editBtn);
+  editBtn.addEventListener('click', openManageEdit);
+})();
+
+function openManageEdit() {
+  var idx = parseInt(document.getElementById('manage-week-sel').value);
+  if (isNaN(idx) || !DATA[idx]) return;
+  var e   = DATA[idx];
+  var lbl = e.lbl || e.date;
+  document.getElementById('manage-week-label').textContent = lbl;
+  document.getElementById('manage-team-wrap').style.display = 'block';
+
+  var formEl = document.getElementById('manage-team-form');
+  var formHtml = '<div class="fg">';
+  CFG.team.forEach(function(m){
+    var td = (e.team && e.team[m]) || {};
+    formHtml += '<div style="background:var(--s2);padding:12px;border-radius:var(--rs)">'
+      +'<div style="font-family:sans-serif;font-size:13px;font-weight:700;margin-bottom:9px;color:var(--gt)">'+m+'</div>'
+      +'<div class="fg" style="gap:8px">'
+      +'<div class="fgrp"><label>📋 # Proposals to Do</label><input type="number" id="mg-'+m+'-ptn" value="'+(td.ptn||0)+'" min="0" style="border-color:var(--teal);background:var(--teal-light)"></div>'
+      +'<div class="fgrp" style="flex:2;min-width:200px"><label>📋 Proposals to Do This Week</label><input type="text" id="mg-'+m+'-ptd" value="'+(td.ptd||'')+'" placeholder="e.g. Acme renewal, NHS tender" style="border-color:var(--teal);background:var(--teal-light)"></div>'
+      +'<div class="fgrp"><label>Sales Meetings</label><input type="number" id="mg-'+m+'-mtg" value="'+(td.mtg||0)+'" min="0"></div>'
+      +'<div class="fgrp"><label>Meetings Booked</label><input type="number" id="mg-'+m+'-bk" value="'+(td.bk||0)+'" min="0"></div>'
+      +'<div class="fgrp"><label>New Leads</label><input type="number" id="mg-'+m+'-leads" value="'+(td.leads||0)+'" min="0"></div>'
+      +'<div class="fgrp"><label>Lead Gen Emails</label><input type="number" id="mg-'+m+'-eml" value="'+(td.eml||0)+'" min="0"></div>'
+      +'<div class="fgrp"><label>Proposals Sent</label><input type="number" id="mg-'+m+'-ps" value="'+(td.ps||0)+'" min="0"></div>'
+      +'<div class="fgrp"><label>Proposal Value Sent (£)</label><input type="number" id="mg-'+m+'-pv" value="'+(td.pv||0)+'" min="0"></div>'
+      +'<div class="fgrp"><label>Sales Secured (£)</label><input type="number" id="mg-'+m+'-sal" value="'+(td.sal||0)+'" min="0"></div>'
+      +'</div></div>';
+  });
+  formHtml += '</div>';
+  formEl.innerHTML = formHtml;
+}
+
+document.getElementById('btn-save-manage').addEventListener('click', function(){
+  var idx = parseInt(document.getElementById('manage-week-sel').value);
+  if (isNaN(idx) || !DATA[idx]) return;
+  var e = DATA[idx];
+  if (!e.team) e.team = {};
+
+  // Recalculate top-level totals from edited figures
+  var totMtg=0,totBk=0,totLeads=0,totEml=0,totPs=0,totPv=0,totSal=0;
+  CFG.team.forEach(function(m){
+    var mtg   = parseFloat(document.getElementById('mg-'+m+'-mtg').value)||0;
+    var bk    = parseFloat(document.getElementById('mg-'+m+'-bk').value)||0;
+    var leads = parseFloat(document.getElementById('mg-'+m+'-leads').value)||0;
+    var eml   = parseFloat(document.getElementById('mg-'+m+'-eml').value)||0;
+    var ps    = parseFloat(document.getElementById('mg-'+m+'-ps').value)||0;
+    var pv    = parseFloat(document.getElementById('mg-'+m+'-pv').value)||0;
+    var sal   = parseFloat(document.getElementById('mg-'+m+'-sal').value)||0;
+    var ptd   = (document.getElementById('mg-'+m+'-ptd')||{}).value||'';
+    var ptn   = parseFloat((document.getElementById('mg-'+m+'-ptn')||{}).value)||0;
+    e.team[m] = {mtg:mtg,bk:bk,leads:leads,eml:eml,ps:ps,pv:pv,sal:sal,ptd:ptd,ptn:ptn};
+    totMtg+=mtg; totBk+=bk; totLeads+=leads; totEml+=eml;
+    totPs+=ps;   totPv+=pv; totSal+=sal;
+  });
+
+  // Update top-level fields
+  e.mheld   = totMtg;
+  e.mbook   = totBk;
+  e.leads   = totLeads;
+  e.eml     = totEml;
+  e.psent   = totPs;
+  e.propval = totPv;
+  e.sales   = totSal;
+
+  DATA[idx] = e;
+  sset('sb_data', DATA);
+  renderDash();
+
+  var msg = document.getElementById('manage-saved');
+  msg.style.display = 'block';
+  setTimeout(function(){ msg.style.display='none'; }, 3000);
+  document.getElementById('manage-team-wrap').style.display = 'none';
+});
+
+document.getElementById('btn-cancel-manage').addEventListener('click', function(){
+  document.getElementById('manage-team-wrap').style.display = 'none';
+});
+
+
+
+
+function renderExecPage() {
+  updateExecSelector();
+  document.getElementById('exec-output').style.display = 'none';
+  document.getElementById('exec-loading').style.display = 'none';
+  document.getElementById('exec-error').style.display = 'none';
+}
+
+var execPeriod = 'weekly';
+
+document.getElementById('tab-exec').addEventListener('click', function(e) {
+  var btn = e.target.closest('.exec-type-btn');
+  if (!btn) return;
+  execPeriod = btn.dataset.period;
+  document.querySelectorAll('.exec-type-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  updateExecSelector();
+  document.getElementById('exec-output').style.display = 'none';
+  document.getElementById('exec-error').style.display = 'none';
+});
+
+function updateExecSelector() {
+  var sel   = document.getElementById('exec-period-sel');
+  var label = document.getElementById('exec-sel-label');
+
+  if (execPeriod === 'weekly') {
+    label.textContent = 'Reporting week';
+    var weeklyData = DATA.filter(function(e){ return !e.historical; });
+    sel.innerHTML = weeklyData.map(function(e){
+      var realIdx = DATA.indexOf(e);
+      return '<option value="'+realIdx+'">'+(e.lbl||e.date)+'</option>';
+    }).join('');
+    if (weeklyData.length) sel.value = DATA.indexOf(weeklyData[weeklyData.length-1]);
+
+  } else if (execPeriod === 'monthly') {
+    label.textContent = 'Reporting month';
+    var months = getMonthOptions();
+    sel.innerHTML = months.map(function(m){
+      return '<option value="'+m.key+'">'+m.label+'</option>';
+    }).join('');
+    if (months.length) sel.value = months[months.length-1].key;
+
+  } else if (execPeriod === 'quarterly') {
+    label.textContent = 'Reporting quarter';
+    var quarters = getQuarterOptions();
+    sel.innerHTML = quarters.map(function(q){
+      return '<option value="'+q.key+'">'+q.label+'</option>';
+    }).join('');
+    if (quarters.length) sel.value = quarters[quarters.length-1].key;
+
+  } else if (execPeriod === 'yearly') {
+    label.textContent = 'Reporting year';
+    var years = getYearOptions();
+    sel.innerHTML = years.map(function(y){
+      return '<option value="'+y+'">'+y+'</option>';
+    }).join('');
+    if (years.length) sel.value = years[years.length-1];
+  }
+}
+
+function getMonthOptions() {
+  var seen = {}, out = [];
+  DATA.forEach(function(e){
+    var m = e.date.substring(0,7);
+    if (!seen[m]) {
+      seen[m] = true;
+      var d = new Date(m+'-15');
+      out.push({ key: m, label: d.toLocaleString('en-GB',{month:'long',year:'numeric'}) });
+    }
+  });
+  return out.sort(function(a,b){ return a.key < b.key ? -1 : 1; });
+}
+
+function getQuarterOptions() {
+  var seen = {}, out = [];
+  DATA.forEach(function(e){
+    var d = new Date(e.date);
+    var q = Math.floor(d.getMonth()/3)+1;
+    var key = d.getFullYear()+'Q'+q;
+    if (!seen[key]) {
+      seen[key] = true;
+      out.push({ key: key, label: 'Q'+q+' '+d.getFullYear() });
+    }
+  });
+  return out.sort(function(a,b){ return a.key < b.key ? -1 : 1; });
+}
+
+function getYearOptions() {
+  var seen = {};
+  DATA.forEach(function(e){ seen[e.date.substring(0,4)] = true; });
+  return Object.keys(seen).sort();
+}
+
+function rollupEntries(entries) {
+  var r = { sales:0, bid:0, leads:0, eml:0, mbook:0, mheld:0, mprop:0, ppipe:0, psent:0, team:{} };
+  entries.forEach(function(e){
+    r.sales  += (e.sales||0);  r.bid    += (e.bid||0);
+    r.leads  += (e.leads||0);  r.eml    += (e.eml||0);
+    r.mbook  += (e.mbook||0);  r.mheld  += (e.mheld||0);
+    r.mprop  += (e.mprop||0);  r.ppipe  += (e.ppipe||0);
+    r.psent  += (e.psent||0);
+    if (e.team) {
+      Object.keys(e.team).forEach(function(name){
+        if (!r.team[name]) r.team[name] = {leads:0,eml:0,bk:0,mtg:0,ps:0,sal:0};
+        var t = e.team[name];
+        r.team[name].leads += (t.leads||0); r.team[name].eml += (t.eml||0);
+        r.team[name].bk    += (t.bk||0);   r.team[name].mtg += (t.mtg||0);
+        r.team[name].ps    += (t.ps||0);    r.team[name].sal += (t.sal||0);
+      });
+    }
+  });
+  return r;
+}
+
+function buildMonthlyContext() {
+  var monthly = {};
+  DATA.forEach(function(e){
+    var m = e.date.substring(0,7);
+    if (!monthly[m]) monthly[m] = {sales:0,meetings:0,proposals:0,leads:0,pipeline:0};
+    monthly[m].sales     += (e.sales||0);
+    monthly[m].meetings  += (e.mheld||0);
+    monthly[m].proposals += (e.psent||0);
+    monthly[m].leads     += (e.leads||0);
+    monthly[m].pipeline  += (e.bid||0);
+  });
+  return monthly;
+}
+
+document.getElementById('btn-gen-summary').addEventListener('click', generateExecSummary);
+
+document.getElementById('btn-copy-summary').addEventListener('click', function() {
+  var text = document.getElementById('exec-text').innerText;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('btn-copy-summary');
+    btn.textContent = 'Copied!';
+    setTimeout(function(){ btn.textContent = 'Copy text'; }, 2000);
+  });
+});
+
+function generateExecSummary() {
+  var errEl = document.getElementById('exec-error');
+  var outEl = document.getElementById('exec-output');
+  var ldEl  = document.getElementById('exec-loading');
+  errEl.style.display = 'none';
+  outEl.style.display = 'none';
+  ldEl.style.display  = 'block';
+
+  try {
+    var selVal   = document.getElementById('exec-period-sel').value;
+    var ytdTotal = 0;
+    for (var i=0; i<DATA.length; i++) ytdTotal += (DATA[i].sales||0);
+    var ytdPct = CFG.tgt > 0 ? Math.round(ytdTotal/CFG.tgt*100) : 0;
+
+    // Monthly rollup
+    var monthly = {};
+    for (var i=0; i<DATA.length; i++) {
+      var e = DATA[i];
+      if (e.historical) continue;
+      var mk = e.date.substring(0,7);
+      if (!monthly[mk]) monthly[mk] = {sales:0,mheld:0,psent:0,leads:0,eml:0,bid:0,mprop:0,weeks:0};
+      monthly[mk].sales  += (e.sales||0);
+      monthly[mk].mheld  += (e.mheld||0);
+      monthly[mk].psent  += (e.psent||0);
+      monthly[mk].leads  += (e.leads||0);
+      monthly[mk].eml    += (e.eml||0);
+      monthly[mk].bid    += (e.bid||0);
+      monthly[mk].mprop  += (e.mprop||0);
+      monthly[mk].weeks++;
+    }
+    var monthKeys = Object.keys(monthly).sort();
+
+    function fmtMonth(k) {
+      try { return new Date(k+'-15').toLocaleString('en-GB',{month:'long',year:'numeric'}); } catch(ex) { return k; }
+    }
+    function fmtMonthShort(k) {
+      try { return new Date(k+'-15').toLocaleString('en-GB',{month:'long'}); } catch(ex) { return k; }
+    }
+    function getTopPerson(teamObj) {
+      var best='', bestVal=0;
+      if (!teamObj) return null;
+      Object.keys(teamObj).forEach(function(n){ var v=teamObj[n].sal||0; if(v>bestVal){bestVal=v;best=n;} });
+      return bestVal>0 ? {name:best,val:bestVal} : null;
+    }
+    function ytdLine(pct) {
+      if (pct>=100) return 'Soar Beyond has achieved its annual target — a strong result for the year.';
+      if (pct>=80)  return 'Soar Beyond is on strong footing to achieve its annual target.';
+      if (pct>=50)  return 'Good progress has been made, with further focus required to reach the annual target.';
+      if (pct>=25)  return 'Significant ground remains to cover against the annual target.';
+      return 'A step-change in activity will be required to meet the annual goal.';
+    }
+
+    // HTML section builder helpers
+    function sectionHeader(num, title) {
+      return '<div style="background:linear-gradient(135deg,#007878,#009999);color:#fff;padding:10px 16px;border-radius:6px;margin:1.5rem 0 0.75rem;font-weight:700;font-size:14px;letter-spacing:.02em">'
+        + num + '.&nbsp;&nbsp;' + title + '</div>';
+    }
+    function bullet(text) {
+      return '<div style="display:flex;gap:8px;margin-bottom:6px;padding-left:4px"><span style="color:var(--teal);font-weight:700;flex-shrink:0">—</span><span>'+text+'</span></div>';
+    }
+    function subHeading(text) {
+      return '<div style="font-weight:700;font-size:14px;color:var(--navy);margin:1rem 0 0.4rem">'+text+'</div>';
+    }
+    function metricRow(label, value, sub) {
+      return '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:.5px solid var(--border)">'
+        +'<span style="color:var(--t2);font-size:13px">'+label+'</span>'
+        +'<span style="font-weight:700;color:var(--navy)">'+value+(sub?' <span style="font-size:11px;font-weight:400;color:var(--t3)">'+sub+'</span>':'')+'</span>'
+        +'</div>';
+    }
+    function riskRow(risk, rating, mitigation) {
+      var col = rating==='H'?'var(--err)':rating==='M'?'var(--warn)':'var(--ok)';
+      var bg  = rating==='H'?'var(--ebg)':rating==='M'?'var(--wbg)':'var(--obg)';
+      return '<div style="display:grid;grid-template-columns:1fr auto 2fr;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border);font-size:13px">'
+        +'<div>'+risk+'</div>'
+        +'<div style="text-align:center"><span style="background:'+bg+';color:'+col+';font-weight:700;padding:2px 9px;border-radius:20px;font-size:11px">'+rating+'</span></div>'
+        +'<div style="color:var(--t2)">'+mitigation+'</div>'
+        +'</div>';
+    }
+
+    var html = '';
+    var reportTitle = '';
+    var reportSubtitle = '';
+
+    // ─── GATHER DATA BY PERIOD ─────────────────────────────────────────────
+    var entries=[], rol={}, tp=null, periodLabel='', prevMonthSales=0, prevPrevMonthSales=0;
+
+    if (execPeriod === 'weekly') {
+      var idx = parseInt(selVal);
+      if (isNaN(idx)||idx<0||idx>=DATA.length) throw new Error('bad index');
+      var w = DATA[idx];
+      entries = [w];
+      rol = rollupEntries(entries);
+      // also sum team data
+      var tmtg=0,tps=0,teml=0,tbk=0,tpv=0,tsal=0;
+      if(w.team){Object.keys(w.team).forEach(function(m){var t=w.team[m];tmtg+=(t.mtg||0);tps+=(t.ps||0);teml+=(t.eml||0);tbk+=(t.bk||0);tpv+=(t.pv||0);tsal+=(t.sal||0);});}
+      rol.mheld = rol.mheld||tmtg; rol.psent = rol.psent||tps; rol.eml = rol.eml||teml; rol.mbook = rol.mbook||tbk;
+      tp = getTopPerson(w.team);
+      periodLabel = w.lbl||w.date;
+      reportTitle = 'Soar Beyond BD and Sales Report';
+      reportSubtitle = 'Week ending ' + (w.lbl||w.date).replace('w/e ','');
+      // prev months for context
+      var wMk = w.date.substring(0,7);
+      var prevMks = monthKeys.filter(function(k){return k<wMk;});
+      if (prevMks.length) prevMonthSales = monthly[prevMks[prevMks.length-1]].sales;
+      if (prevMks.length>1) prevPrevMonthSales = monthly[prevMks[prevMks.length-2]].sales;
+
+    } else if (execPeriod === 'monthly') {
+      var mk = selVal;
+      for(var i=0;i<DATA.length;i++){if(!DATA[i].historical&&DATA[i].date.substring(0,7)===mk)entries.push(DATA[i]);}
+      rol = rollupEntries(entries);
+      var tmtg=0,tps=0,teml=0,tbk=0,tpv=0,tsal=0;
+      entries.forEach(function(e){if(e.team){Object.keys(e.team).forEach(function(m){var t=e.team[m];tmtg+=(t.mtg||0);tps+=(t.ps||0);teml+=(t.eml||0);tbk+=(t.bk||0);tpv+=(t.pv||0);tsal+=(t.sal||0);});}});
+      rol.mheld=rol.mheld||tmtg; rol.psent=rol.psent||tps; rol.eml=rol.eml||teml; rol.mbook=rol.mbook||tbk;
+      // build merged team
+      var mergedTeam={};
+      entries.forEach(function(e){if(e.team){Object.keys(e.team).forEach(function(m){if(!mergedTeam[m])mergedTeam[m]={sal:0};mergedTeam[m].sal+=(e.team[m].sal||0);});}});
+      tp = getTopPerson(mergedTeam);
+      periodLabel = fmtMonth(mk);
+      reportTitle = 'Soar Beyond BD and Sales Report — ' + fmtMonthShort(mk);
+      reportSubtitle = fmtMonth(mk);
+      var prevMks2 = monthKeys.filter(function(k){return k<mk;});
+      if (prevMks2.length) prevMonthSales = monthly[prevMks2[prevMks2.length-1]].sales;
+      if (prevMks2.length>1) prevPrevMonthSales = monthly[prevMks2[prevMks2.length-2]].sales;
+
+    } else if (execPeriod === 'quarterly') {
+      var qYr = parseInt(selVal.substring(0,4)), qN = parseInt(selVal.substring(5));
+      for(var i=0;i<DATA.length;i++){if(!DATA[i].historical){var d2=new Date(DATA[i].date);if(d2.getFullYear()===qYr&&Math.floor(d2.getMonth()/3)===qN-1)entries.push(DATA[i]);}}
+      rol = rollupEntries(entries);
+      var tmtg=0,tps=0,teml=0,tbk=0,tpv=0,tsal=0;
+      entries.forEach(function(e){if(e.team){Object.keys(e.team).forEach(function(m){var t=e.team[m];tmtg+=(t.mtg||0);tps+=(t.ps||0);teml+=(t.eml||0);tbk+=(t.bk||0);tpv+=(t.pv||0);tsal+=(t.sal||0);});}});
+      rol.mheld=rol.mheld||tmtg; rol.psent=rol.psent||tps; rol.eml=rol.eml||teml; rol.mbook=rol.mbook||tbk;
+      var mergedTeamQ={};
+      entries.forEach(function(e){if(e.team){Object.keys(e.team).forEach(function(m){if(!mergedTeamQ[m])mergedTeamQ[m]={sal:0};mergedTeamQ[m].sal+=(e.team[m].sal||0);});}});
+      tp = getTopPerson(mergedTeamQ);
+      periodLabel = 'Q'+qN+' '+qYr;
+      reportTitle = 'Soar Beyond BD and Sales Report — Q'+qN+' '+qYr;
+      reportSubtitle = 'Q'+qN+' '+qYr;
+
+    } else {
+      var yr = selVal;
+      for(var i=0;i<DATA.length;i++){if(!DATA[i].historical&&DATA[i].date.substring(0,4)===yr)entries.push(DATA[i]);}
+      rol = rollupEntries(entries);
+      var tmtg=0,tps=0,teml=0,tbk=0,tpv=0,tsal=0;
+      entries.forEach(function(e){if(e.team){Object.keys(e.team).forEach(function(m){var t=e.team[m];tmtg+=(t.mtg||0);tps+=(t.ps||0);teml+=(t.eml||0);tbk+=(t.bk||0);tpv+=(t.pv||0);tsal+=(t.sal||0);});}});
+      rol.mheld=rol.mheld||tmtg; rol.psent=rol.psent||tps; rol.eml=rol.eml||teml; rol.mbook=rol.mbook||tbk;
+      var mergedTeamY={};
+      entries.forEach(function(e){if(e.team){Object.keys(e.team).forEach(function(m){if(!mergedTeamY[m])mergedTeamY[m]={sal:0};mergedTeamY[m].sal+=(e.team[m].sal||0);});}});
+      tp = getTopPerson(mergedTeamY);
+      periodLabel = 'Full Year '+yr;
+      reportTitle = 'Soar Beyond BD and Sales Report — '+yr;
+      reportSubtitle = 'Full Year '+yr;
+    }
+
+    if (!entries.length) throw new Error('No data for this period');
+
+    var conv = rol.mheld>0 ? Math.round(rol.mprop/rol.mheld*100) : 0;
+
+    // ─── REPORT STRUCTURE ─────────────────────────────────────────────────
+
+    // Report Structure index
+    html += '<div style="background:var(--s2);border-radius:var(--rs);padding:1rem 1.25rem;margin-bottom:1rem;font-size:13px;color:var(--t2)">'
+      + '<div style="font-weight:700;color:var(--navy);margin-bottom:0.5rem">Report Structure</div>'
+      + [1,2,3,4,5,6].map(function(n,i){
+          var titles=['Exec Summary','KPIs & Activity Metrics','Sales Pipeline','Anticipated Risks & Mitigations','Action Plan & Focus','BD & Lead Gen Activities'];
+          return '<div style="padding:2px 0"><span style="font-weight:700;color:var(--teal)">'+n+'.</span> '+titles[i]+'</div>';
+        }).join('')
+      + '</div>';
+
+    // ── 1. EXEC SUMMARY ──────────────────────────────────────────────────
+    html += sectionHeader('1', 'Exec Summary');
+
+    if (execPeriod === 'weekly') {
+      var mk0 = entries[0].date.substring(0,7);
+      var monthToDate = 0;
+      DATA.filter(function(e){return !e.historical&&e.date.substring(0,7)===mk0;}).forEach(function(e){monthToDate+=(e.sales||0);});
+      html += bullet(periodLabel+' closed with '+f(rol.sales)+' in sales secured.'
+        +(monthToDate>0?' Month-to-date for '+fmtMonthShort(mk0)+' stands at '+f(monthToDate)+'.':'')
+        +' YTD cumulative sales have reached '+f(ytdTotal)+'.');
+      if (prevMonthSales>0) {
+        var dir = rol.sales>=(prevMonthSales/4) ? 'on pace with' : 'below';
+        html += bullet('Comparing to the prior month ('+f(prevMonthSales)+'), this week is '+dir+' the typical run-rate.');
+      }
+      html += bullet('The team conducted '+Math.round(rol.mheld)+' sales meetings and submitted '+Math.round(rol.psent)+' proposal'+(rol.psent!==1?'s':'')+' this week.'
+        +(tp?' '+tp.name+' was the standout contributor, closing '+f(tp.val)+'.':''));
+      if (entries[0].notes) {
+        html += bullet('Team priority this week: '+String(entries[0].notes).split('\n')[0].replace(/^\d+[.\-\s]*/,'').trim()+'.');
+      }
+      // Quarterly comparison if data exists
+      var qMths = monthKeys.filter(function(k){return k.substring(0,4)===entries[0].date.substring(0,4);});
+      if (qMths.length>=2) {
+        html += subHeading('Monthly context ('+entries[0].date.substring(0,4)+'):');
+        html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:0.75rem">';
+        qMths.forEach(function(k){ html += '<div style="background:var(--s2);padding:6px 12px;border-radius:20px;font-size:12px"><span style="color:var(--t2)">'+fmtMonthShort(k)+':</span> <strong>'+f(monthly[k].sales)+'</strong></div>'; });
+        html += '</div>';
+      }
+
+    } else if (execPeriod === 'monthly') {
+      var mk = selVal;
+      var prevMksAll = monthKeys.filter(function(k){return k<mk;});
+      var prevM = prevMksAll.length ? monthly[prevMksAll[prevMksAll.length-1]] : null;
+      var trend = prevM ? (rol.sales>prevM.sales ? 'an increase on the prior month ('+f(prevM.sales)+')' : 'below the prior month ('+f(prevM.sales)+')') : 'the first month of recorded data';
+      html += bullet(fmtMonth(mk)+' closed with '+f(rol.sales)+' in monthly sales — '+trend+'. YTD cumulative sales have now reached '+f(ytdTotal)+'.');
+      if (tp) html += bullet(tp.name+' led individual contributions this month, securing '+f(tp.val)+'.');
+      html += bullet('The team conducted '+Math.round(rol.mheld)+' sales meetings and submitted '+Math.round(rol.psent)+' proposal'+(rol.psent!==1?'s':'')+' during the month.'+(conv>0?' Meeting-to-proposal conversion: '+conv+'% '+(conv>=60?'(on target).':'(target: '+CFG.conv+'%).'):''));
+      // Quarterly comparison
+      html += subHeading('Quarterly Comparison:');
+      var qGroups={};
+      monthKeys.filter(function(k){return k.substring(0,4)===mk.substring(0,4);}).forEach(function(k){
+        var q='Q'+(Math.floor(parseInt(k.substring(5,7)-1)/3)+1);
+        if(!qGroups[q])qGroups[q]=0; qGroups[q]+=monthly[k].sales;
+      });
+      Object.keys(qGroups).sort().forEach(function(q){ html += bullet('<strong>'+q+' ('+mk.substring(0,4)+'):</strong> '+f(qGroups[q])); });
+      // Sales won
+      html += subHeading('Sales Won:');
+      var topContribs=[];
+      var mTeam={};
+      entries.forEach(function(e){if(e.team){Object.keys(e.team).forEach(function(m){if(!mTeam[m])mTeam[m]=0;mTeam[m]+=(e.team[m].sal||0);});}});
+      Object.keys(mTeam).filter(function(m){return mTeam[m]>0;}).sort(function(a,b){return mTeam[b]-mTeam[a];}).forEach(function(m){ topContribs.push(m+' — '+f(mTeam[m])); });
+      if (topContribs.length) {
+        topContribs.forEach(function(c){ html += bullet(c); });
+      } else {
+        html += bullet(f(rol.sales)+' secured across '+entries.length+' week'+(entries.length!==1?'s':'')+' of activity.');
+      }
+      // Activity metrics
+      html += subHeading('Activity Metrics:');
+      html += bullet('Sales meetings held: '+Math.round(rol.mheld)+(prevM&&prevM.mheld>0?' (prior month: '+Math.round(prevM.mheld)+')':'')+'.');
+      html += bullet('Proposals submitted: '+Math.round(rol.psent)+'. Outbound emails: '+Math.round(rol.eml)+'. New leads: '+Math.round(rol.leads)+'.');
+
+    } else if (execPeriod === 'quarterly') {
+      var qMthsData=[];
+      for(var qi=0;qi<3;qi++){var qmk=qYr+'-'+String((qN-1)*3+qi+1).padStart(2,'0');if(monthly[qmk])qMthsData.push({label:fmtMonthShort(qmk),sales:monthly[qmk].sales,meetings:monthly[qmk].mheld});}
+      html += bullet('Q'+qN+' '+qYr+' closed with '+f(rol.sales)+' in total sales across '+Math.round(rol.mheld)+' meetings and '+Math.round(rol.psent)+' proposals submitted. YTD: '+f(ytdTotal)+' ('+ytdPct+'% of target).');
+      if (tp) html += bullet(tp.name+' was the quarter\'s leading contributor, securing '+f(tp.val)+'.');
+      html += subHeading('Monthly Breakdown:');
+      qMthsData.forEach(function(m){ html += bullet('<strong>'+m.label+':</strong> '+f(m.sales)+' — '+Math.round(m.meetings)+' meeting'+(m.meetings!==1?'s':'')); });
+      html += subHeading('Quarterly Comparison ('+qYr+'):');
+      var qAll={};
+      monthKeys.filter(function(k){return k.substring(0,4)===String(qYr);}).forEach(function(k){var q='Q'+(Math.floor(parseInt(k.substring(5,7)-1)/3)+1);if(!qAll[q])qAll[q]=0;qAll[q]+=monthly[k].sales;});
+      Object.keys(qAll).sort().forEach(function(q){ html += bullet('<strong>'+q+':</strong> '+f(qAll[q])); });
+
+    } else {
+      var yMths=monthKeys.filter(function(k){return k.substring(0,4)===selVal;});
+      var yPct = CFG.tgt>0 ? Math.round(rol.sales/CFG.tgt*100) : 0;
+      html += bullet('Full year '+selVal+': '+f(rol.sales)+' against a '+f(CFG.tgt)+' target — '+yPct+'% of goal achieved. '+ytdLine(yPct));
+      if (tp) html += bullet(tp.name+' was the year\'s leading contributor, securing '+f(tp.val)+'.');
+      html += subHeading('Monthly Breakdown:');
+      yMths.forEach(function(k){ html += bullet('<strong>'+fmtMonthShort(k)+':</strong> '+f(monthly[k].sales)+' ('+Math.round(monthly[k].mheld)+' meetings, '+Math.round(monthly[k].psent)+' proposals)'); });
+      html += subHeading('Quarterly Summary:');
+      var qAllY={};
+      yMths.forEach(function(k){var q='Q'+(Math.floor(parseInt(k.substring(5,7)-1)/3)+1);if(!qAllY[q])qAllY[q]=0;qAllY[q]+=monthly[k].sales;});
+      Object.keys(qAllY).sort().forEach(function(q){ html += bullet('<strong>'+q+':</strong> '+f(qAllY[q])); });
+    }
+
+    html += bullet(ytdLine(ytdPct)+' Against the '+f(CFG.tgt)+' annual target, the business has secured '+f(ytdTotal)+' YTD ('+ytdPct+'%).');
+
+    // ── 2. KPIs ────────────────────────────────────────────────────────────
+    html += sectionHeader('2', 'KPIs &amp; Activity Metrics');
+    html += metricRow('Sales Secured', f(rol.sales), periodLabel);
+    html += metricRow('YTD Revenue', f(ytdTotal), ytdPct+'% of '+f(CFG.tgt)+' target');
+    html += metricRow('Sales Meetings Held', Math.round(rol.mheld), '');
+    html += metricRow('Meetings Booked', Math.round(rol.mbook||0), '');
+    html += metricRow('Proposals Submitted', Math.round(rol.psent), '');
+    html += metricRow('Pipeline Value', f(rol.bid||0), 'outstanding');
+    html += metricRow('New Leads Generated', Math.round(rol.leads||0), '');
+    html += metricRow('Outbound Emails', Math.round(rol.eml||0), '');
+    if (conv>0) html += metricRow('Mtg → Proposal Conversion', conv+'%', 'target: '+CFG.conv+'%');
+    // Per-person breakdown
+    var anyTeam = false;
+    entries.forEach(function(e){if(e.team&&Object.keys(e.team).length)anyTeam=true;});
+    if (anyTeam) {
+      html += subHeading('Team Breakdown:');
+      html += '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">'
+        + '<thead><tr style="background:var(--s2)">'
+        + '<th style="text-align:left;padding:7px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)">Member</th>'
+        + '<th style="text-align:right;padding:7px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)">Sales</th>'
+        + '<th style="text-align:right;padding:7px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)">Meetings</th>'
+        + '<th style="text-align:right;padding:7px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)">Props</th>'
+        + '<th style="text-align:right;padding:7px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)">Leads</th>'
+        + '</tr></thead><tbody>';
+      var teamTotals={};
+      entries.forEach(function(e){if(e.team){Object.keys(e.team).forEach(function(m){if(!teamTotals[m])teamTotals[m]={sal:0,mtg:0,ps:0,leads:0};var t=e.team[m];teamTotals[m].sal+=(t.sal||0);teamTotals[m].mtg+=(t.mtg||0);teamTotals[m].ps+=(t.ps||0);teamTotals[m].leads+=(t.leads||0);});}});
+      Object.keys(teamTotals).sort().forEach(function(m){
+        var t=teamTotals[m];
+        html += '<tr><td style="padding:7px 10px;border-bottom:.5px solid var(--border)">'+m+'</td>'
+          +'<td style="text-align:right;padding:7px 10px;border-bottom:.5px solid var(--border);font-weight:700">'+f(t.sal)+'</td>'
+          +'<td style="text-align:right;padding:7px 10px;border-bottom:.5px solid var(--border)">'+t.mtg+'</td>'
+          +'<td style="text-align:right;padding:7px 10px;border-bottom:.5px solid var(--border)">'+t.ps+'</td>'
+          +'<td style="text-align:right;padding:7px 10px;border-bottom:.5px solid var(--border)">'+t.leads+'</td>'
+          +'</tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+
+    // ── 3. PIPELINE ────────────────────────────────────────────────────────
+    html += sectionHeader('3', 'Sales Pipeline &amp; Likelihood of Conversion');
+    var le = last();
+    if (le && le.bid > 0) {
+      html += bullet('Outstanding pipeline value: <strong>'+f(le.bid)+'</strong>');
+    }
+    // Show proposals-to-do from team data if available
+    var ptdItems=[];
+    entries.forEach(function(e){
+      if(e.team){Object.keys(e.team).forEach(function(m){
+        var t=e.team[m];
+        if(t.ptd||t.ptn){
+          var str=m;
+          if(t.ptn) str+=' ('+t.ptn+' proposal'+(t.ptn!==1?'s':'')+' planned)';
+          if(t.ptd) str+=': '+t.ptd;
+          ptdItems.push(str);
+        }
+      });}
+    });
+    if (ptdItems.length) {
+      html += subHeading('Proposals in Pipeline:');
+      ptdItems.forEach(function(p){ html += bullet(p); });
+    } else {
+      html += bullet('Pipeline detail to be updated — ensure proposals in progress are tracked in the weekly entry.');
+    }
+    html += bullet('Active pipeline should be progressed and converted where possible to support revenue targets.');
+
+    // ── 4. RISKS ────────────────────────────────────────────────────────────
+    html += sectionHeader('4', 'Anticipated Risks &amp; Proposed Mitigations');
+    html += '<div style="display:grid;grid-template-columns:1fr auto 2fr;gap:10px;padding:6px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)">'
+      +'<div>Risk</div><div>H/M/L</div><div>Mitigation</div></div>';
+    // Risks auto-generated from performance data
+    if (ytdPct < 50) {
+      html += riskRow('Revenue significantly below annual target', 'H', 'Increase meeting cadence, accelerate pipeline conversion and review proposal win rate');
+    } else if (ytdPct < 80) {
+      html += riskRow('Revenue behind annual target pace', 'M', 'Prioritise highest-value pipeline opportunities and maintain meeting volume');
+    }
+    if (rol.mheld < (CFG.mtg/4)) {
+      html += riskRow('Sales meeting volume below target', 'H', 'Structured outreach plan required — focus on booking quality meetings with key decision-makers');
+    }
+    if (conv > 0 && conv < CFG.conv) {
+      html += riskRow('Meeting-to-proposal conversion below '+CFG.conv+'% target (currently '+conv+'%)', 'M', 'Review proposal qualification criteria and ensure follow-up is timely and targeted');
+    }
+    html += riskRow('Team proposal dependency concentration', 'H', 'Standardise proposals and rate cards to reduce bottlenecks and improve turnaround speed');
+    html += riskRow('Lack of design / marketing support', 'M', 'Review resource options including freelance support to improve quality and speed of delivery');
+    html += '<div style="font-size:12px;color:var(--t3);margin-top:8px;font-style:italic">Add specific risks and mitigations in the notes field of weekly entry as needed.</div>';
+
+    // ── 5. ACTION PLAN ──────────────────────────────────────────────────────
+    html += sectionHeader('5', 'Action Plan &amp; Focus for Next Period');
+    // Pull from latest notes
+    var allNotes = entries.map(function(e){return e.notes||'';}).filter(Boolean);
+    var latestNote = allNotes.length ? allNotes[allNotes.length-1] : '';
+    var noteLines = latestNote ? latestNote.split('\n').map(function(l){return l.replace(/^\d+[.\-\s]*/,'').trim();}).filter(Boolean) : [];
+    html += '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">'
+      +'<thead><tr style="background:var(--s2)">'
+      +'<th style="text-align:left;padding:8px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)">Activity</th>'
+      +'<th style="text-align:left;padding:8px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)">Owner</th>'
+      +'<th style="text-align:left;padding:8px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)">Target Date</th>'
+      +'</tr></thead><tbody>';
+    var actionItems = noteLines.length ? noteLines : [
+      'Maintain and grow sales meeting cadence',
+      'Progress and convert outstanding pipeline proposals',
+      'Ensure proposal follow-up is timely and targeted',
+      'Review and update pipeline tracker weekly'
+    ];
+    actionItems.forEach(function(a){
+      html += '<tr><td style="padding:8px 10px;border-bottom:.5px solid var(--border)">'+a+'</td>'
+        +'<td style="padding:8px 10px;border-bottom:.5px solid var(--border);color:var(--t2)">Team</td>'
+        +'<td style="padding:8px 10px;border-bottom:.5px solid var(--border);color:var(--t2)">Ongoing</td></tr>';
+    });
+    // Add blank rows for manual completion
+    for(var ri=0;ri<2;ri++){
+      html += '<tr><td style="padding:8px 10px;border-bottom:.5px solid var(--border);color:var(--t3);font-style:italic">—</td>'
+        +'<td style="padding:8px 10px;border-bottom:.5px solid var(--border)"></td>'
+        +'<td style="padding:8px 10px;border-bottom:.5px solid var(--border)"></td></tr>';
+    }
+    html += '</tbody></table></div>';
+
+    // ── 6. BD & LEAD GEN ─────────────────────────────────────────────────────
+    html += sectionHeader('6', 'BD &amp; Lead Gen Activities');
+    html += bullet('Outbound emails this period: <strong>'+Math.round(rol.eml||0)+'</strong>. New leads generated: <strong>'+Math.round(rol.leads||0)+'</strong>.');
+    html += bullet('Meetings booked: <strong>'+Math.round(rol.mbook||0)+'</strong>. Meetings held: <strong>'+Math.round(rol.mheld||0)+'</strong>.');
+    html += bullet('Continued focus on top-of-funnel activity is essential to sustain pipeline flow and support revenue targets for the period ahead.');
+    html += '<div style="font-size:12px;color:var(--t3);margin-top:8px;font-style:italic">Add specific BD events, campaigns and lead gen focus areas in the weekly notes field.</div>';
+
+    // Render
+    ldEl.style.display = 'none';
+    document.getElementById('exec-text').innerHTML = html;
+    document.getElementById('exec-type-label').textContent = reportTitle;
+    document.getElementById('exec-subtitle').textContent = reportSubtitle + ' — generated ' + new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    outEl.style.display = 'block';
+
+  } catch(err) {
+    console.error('Board report error:', err);
+    document.getElementById('exec-loading').style.display = 'none';
+    errEl.style.display = 'block';
+    errEl.textContent = 'Could not generate report: '+err.message;
+  }
+}
+
+
+
+document.getElementById('btn-sync').addEventListener('click',async function(){
+  var icon=document.getElementById('sync-icon');
+  icon.style.animation='spin 0.6s linear infinite';
+  try{
+    var d=await atGet('sb_data');
+    if(d&&d.length>0){DATA.length=0;d.forEach(function(e){DATA.push(e);});}
+    var c=await atGet('sb_cfg');
+    if(c) Object.assign(CFG,c);
+    var at=document.querySelector('.tab.on');
+    if(at){
+      var id=at.id.replace('tab-','');
+      var fn={dashboard:renderDash,entry:buildTeamForm,targets:renderTargets,
+              team:renderTeamPage,history:renderHistory,settings:populateSettings,exec:renderExecPage};
+      if(fn[id])fn[id]();
+    }
+  }catch(e){console.warn('Sync failed:',e);}
+  setTimeout(function(){icon.style.animation='';},800);
+});
+initApp();
+
+})();
+</script>
+</div>
+</body>
+</html>
