@@ -135,6 +135,30 @@ hr{border:none;border-top:.5px solid var(--border);margin:1.2rem 0}
   <div id="app-status" style="font-size:12px;color:#8aa0ae;margin-top:4px"></div>
 </div>
 
+<div id="auth-gate" style="display:none;position:fixed;inset:0;background:linear-gradient(135deg, rgba(0,120,120,0.12), rgba(0,153,153,0.10));z-index:1000;align-items:center;justify-content:center;padding:22px">
+  <div style="width:min(520px, 100%);background:var(--surface);border:.5px solid var(--border);border-radius:14px;box-shadow:0 18px 60px rgba(0,40,40,.18);padding:22px 22px 18px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#007878,#009999);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">SB</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--navy)">Soar Beyond Sales Dashboard</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:2px">Enter password to continue.</div>
+      </div>
+    </div>
+    <div class="fgrp" style="margin-top:10px">
+      <label>Password</label>
+      <input id="auth-pass" type="password" autocomplete="current-password" placeholder="Password">
+    </div>
+    <div id="auth-err" style="display:none;margin-top:10px;background:var(--ebg);color:var(--err);padding:10px 12px;border-radius:8px;font-size:13px;font-weight:600"></div>
+    <div class="acts" style="margin-top:14px;justify-content:flex-end">
+      <button class="btn" id="auth-cancel">Back to Hub</button>
+      <button class="btn p" id="auth-unlock">Unlock</button>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--t3);line-height:1.5">
+      Note: This is a lightweight in-page lock (not a secure server-side login).
+    </div>
+  </div>
+</div>
+
 
 <div id="app-main" style="display:none">
 <header>
@@ -1569,7 +1593,54 @@ document.getElementById('btn-sync').addEventListener('click',async function(){
   }catch(e){console.warn('Sync failed:',e);}
   setTimeout(function(){icon.style.animation='';},800);
 });
-initApp();
+
+// ── Simple password gate ────────────────────────────────────────────────────
+var AUTH_PASS = 'Marchmont2026!';
+var AUTH_KEY  = 'sb_salesdash_authed';
+
+function authOk(){
+  try { return sessionStorage.getItem(AUTH_KEY)==='1'; } catch(e){ return false; }
+}
+function authSetOk(){
+  try { sessionStorage.setItem(AUTH_KEY,'1'); } catch(e){}
+}
+function showGate(){
+  var gate=document.getElementById('auth-gate');
+  gate.style.display='flex';
+  var inp=document.getElementById('auth-pass');
+  var err=document.getElementById('auth-err');
+  err.style.display='none'; err.textContent='';
+  setTimeout(function(){ try{inp.focus();}catch(e){} }, 50);
+}
+function hideGate(){
+  var gate=document.getElementById('auth-gate');
+  gate.style.display='none';
+}
+function unlockAttempt(){
+  var inp=document.getElementById('auth-pass');
+  var err=document.getElementById('auth-err');
+  if((inp.value||'')===AUTH_PASS){
+    authSetOk();
+    hideGate();
+    initApp();
+  }else{
+    err.textContent='Incorrect password.';
+    err.style.display='block';
+    inp.select();
+  }
+}
+
+document.getElementById('auth-unlock').addEventListener('click', unlockAttempt);
+document.getElementById('auth-cancel').addEventListener('click', function(){ window.location.href='../index.html'; });
+document.getElementById('auth-pass').addEventListener('keydown', function(e){
+  if(e.key==='Enter'){ e.preventDefault(); unlockAttempt(); }
+});
+
+if(authOk()){
+  initApp();
+}else{
+  showGate();
+}
 
 })();
 </script>
