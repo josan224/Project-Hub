@@ -230,9 +230,9 @@ a {
 }
 
 .page-hero__logo-img {
-  height: 72px;
+  height: 150px;
   width: auto;
-  max-width: min(360px, 40vw);
+  max-width: min(640px, 50vw);
   object-fit: contain;
   filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.25));
 }
