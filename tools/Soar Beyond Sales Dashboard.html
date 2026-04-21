@@ -232,7 +232,7 @@ hr{border:none;border-top:.5px solid var(--border);margin:1.2rem 0}
     <h3>Weekly KPI Tracker</h3>
     <div style="overflow-x:auto">
       <table><thead><tr><th>Week</th><th>Sales (£)</th><th>Leads</th><th>Emails</th><th>Mtgs Booked</th><th>Mtgs Held</th><th>Props Sent</th><th>Props Value Sent (£)</th><th>Pipeline (£)</th><th>Conv %</th></tr></thead>
-      <tbody id="kpi-body"><tr><td colspan="9" class="empty">No data yet.</td></tr></tbody></table>
+      <tbody id="kpi-body"><tr><td colspan="10" class="empty">No data yet.</td></tr></tbody></table>
     </div>
   </div>
 </div>
@@ -415,10 +415,11 @@ async function atSet(key,value){
 
 async function storageGet(key){return await atGet(key);}
 async function storageSet(key,value){await atSet(key,value);}
-async function sset(key,value){await atSet(key,value);}
+async function sset(key,value){await storageSet(key,value);}
 function sget(key){
-  if(key==='sb_data')return DATA;
-  if(key==='sb_cfg')return CFG;
+  // sync shim — only used during render, actual data already loaded
+  if (key === 'sb_data') return DATA;
+  if (key === 'sb_cfg')  return CFG;
   return null;
 }
 async function initApp(){
@@ -460,17 +461,6 @@ async function initApp(){
   document.getElementById('app-loading').style.display='none';
   document.getElementById('app-main').style.display='block';
   buildTeamForm(); renderDash(); _appReady=true;
-}
-
-async function sset(key, value) {
-  await storageSet(key, value);
-}
-
-function sget(key) {
-  // sync shim — only used during render, actual data already loaded
-  if (key === 'sb_data') return DATA;
-  if (key === 'sb_cfg')  return CFG;
-  return null;
 }
 
 
@@ -817,13 +807,24 @@ function renderTargets(){
   mkChart('c-monthly',{type:'bar',data:{labels:months,datasets:[{label:'Actual',data:mo,backgroundColor:'#007878'},{label:'Target',data:Array(12).fill(mt),type:'line',borderColor:'#b07010',borderDash:[5,3],backgroundColor:'transparent',pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return' '+f(c.raw);}}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'£'+(v/1000).toFixed(0)+'k';}}}}}});
 
   var tbody=document.getElementById('kpi-body');
-  if(!DATA.length){tbody.innerHTML='<tr><td colspan="9" class="empty">No data yet.</td></tr>';return;}
+  if(!DATA.length){tbody.innerHTML='<tr><td colspan="10" class="empty">No data yet.</td></tr>';return;}
   var weeklyRows=DATA.filter(function(e){return !e.historical;});
-  if(!weeklyRows.length){tbody.innerHTML='<tr><td colspan="9" class="empty">No weekly data yet.</td></tr>';return;}
+  if(!weeklyRows.length){tbody.innerHTML='<tr><td colspan="10" class="empty">No weekly data yet.</td></tr>';return;}
   tbody.innerHTML=weeklyRows.map(function(e){
     var cv=e.mheld?Math.round(e.mprop/e.mheld*100):0;
     var cb=cv>=CFG.conv?'g':cv>=CFG.conv*.7?'a':'r';
-    return'<tr><td>'+(e.lbl||e.date)+'</td><td>'+f(e.sales)+'</td><td>'+(e.leads||0)+'</td><td>'+(e.eml||0)+'</td><td>'+(e.mbook||0)+'</td><td>'+(e.mheld||0)+'</td><td>'+(e.psent||0)+'</td><td>'+f(e.bid)+'</td><td><span class="badge '+cb+'">'+cv+'%</span></td></tr>';
+    return '<tr>'
+      + '<td>'+(e.lbl||e.date)+'</td>'
+      + '<td>'+f(e.sales)+'</td>'
+      + '<td>'+(e.leads||0)+'</td>'
+      + '<td>'+(e.eml||0)+'</td>'
+      + '<td>'+(e.mbook||0)+'</td>'
+      + '<td>'+(e.mheld||0)+'</td>'
+      + '<td>'+(e.psent||0)+'</td>'
+      + '<td>'+f(e.propval||0)+'</td>'
+      + '<td>'+f(e.bid||0)+'</td>'
+      + '<td><span class="badge '+cb+'">'+cv+'%</span></td>'
+      + '</tr>';
   }).join('');
 }
 
