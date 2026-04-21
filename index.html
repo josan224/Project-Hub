@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!--
+    ============================================================
+    SOAR BEYOND TEAM HUB — HOMEPAGE (index.html)
+    ============================================================
+    This is the main hub page. It displays all tiles grouped
+    into three sections: Tools, Guides, and Company Info.
+
+    TO ADD A NEW TILE:
+    1. Copy one of the <a class="tile-card"> blocks below.
+    2. Update the icon, title, description, and href link.
+    3. Make sure href points to the correct file in the right folder.
+    4. Update the data-count value on the hub-section to reflect
+       the new number of tiles (e.g. "4 items").
+    5. Save and push to GitHub — Netlify will deploy automatically.
+    ============================================================
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Soar Beyond | Team Hub</title>
+
+  <!--
+    Google Fonts: DM Sans is used as the web fallback for Aptos.
+    If a team member's machine has Aptos installed, the browser
+    will use that automatically instead.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet" />
+
+  <!-- Shared stylesheet — controls all branding and layout -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       HEADER
+       Sticky nav bar. The anchor links (#tools, #guides, #company-info)
+       jump to the matching section on this page.
+       ============================================================ -->
+  <header class="site-header">
+    <div class="site-header__brand">
+      Soar <span>Beyond</span>
+    </div>
+    <nav aria-label="Site navigation">
+      <ul class="site-header__nav">
+        <li><a href="#tools">Tools</a></li>
+        <li><a href="#guides">Guides</a></li>
+        <li><a href="#company-info">Company Info</a></li>
+      </ul>
+    </nav>
+  </header>
+
+
+  <!-- ============================================================
+       HERO BANNER
+       The introductory banner at the top of the hub.
+       Update the title and subtitle to suit the team.
+       ============================================================ -->
+  <section class="page-hero">
+    <div class="page-hero__inner">
+      <!-- Small label above the title -->
+      <div class="page-hero__eyebrow">Soar Beyond Internal</div>
+      <h1 class="page-hero__title">Team Hub</h1>
+      <p class="page-hero__subtitle">
+        Your central resource for tools, guides, and company information.
+      </p>
+    </div>
+  </section>
+
+  <!-- Thin gradient divider between hero and content -->
+  <div class="hero-divider"></div>
+
+
+  <!-- ============================================================
+       SECTION NAV PILLS
+       Quick-jump buttons that scroll to each section.
+       These also serve as a visual key for the three categories.
+       ============================================================ -->
+  <nav class="section-nav" aria-label="Jump to section">
+    <a href="#tools" class="section-nav__pill section-nav__pill--tools">
+      <span class="section-nav__dot"></span>
+      Tools
+    </a>
+    <a href="#guides" class="section-nav__pill section-nav__pill--guides">
+      <span class="section-nav__dot"></span>
+      Guides
+    </a>
+    <a href="#company-info" class="section-nav__pill section-nav__pill--info">
+      <span class="section-nav__dot"></span>
+      Company Info
+    </a>
+  </nav>
+
+
+  <!-- ============================================================
+       MAIN CONTENT
+       Three sections, each with a heading row and tile grid.
+       ============================================================ -->
+  <main class="hub-main">
+
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         SECTION 1: TOOLS
+         Each tile links to a file inside the /tools/ folder.
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <section class="hub-section hub-section--tools" id="tools">
+
+      <!-- Section header row: accent bar, title, description, count badge -->
+      <div class="hub-section__header">
+        <div class="hub-section__header-left">
+          <div class="hub-section__accent"></div>
+          <div>
+            <div class="hub-section__heading">Tools</div>
+            <!-- UPDATE this description to suit your team -->
+            <div class="hub-section__description">Interactive tools to support your day-to-day work.</div>
+          </div>
+        </div>
+        <!-- UPDATE this count when you add or remove tiles -->
+        <span class="hub-section__count">3 items</span>
+      </div>
+
+      <div class="tile-grid">
+
+        <!--
+          TILE CARD
+          To add a new tool:
+          - Copy this block
+          - Update href, icon (any emoji works), title, and description
+          - Keep class="tile-card tile-card--tools" unchanged
+        -->
+        <a href="tools/tool-one.html" class="tile-card tile-card--tools">
+          <div class="tile-card__icon-wrap">🛠️</div>
+          <div class="tile-card__title">Tool One</div>
+          <div class="tile-card__description">A short description of what this tool does and who it's for.</div>
+          <div class="tile-card__footer">
+            <span class="tile-card__label">Tool</span>
+            <span class="tile-card__arrow">→</span>
+          </div>
+        </a>
+
+        <a href="tools/tool-two.html" class="tile-card tile-card--tools">
+          <div class="tile-card__icon-wrap">📊</div>
+          <div class="tile-card__title">Tool Two</div>
+          <div class="tile-card__description">A short description of what this tool does and who it's for.</div>
+          <div class="tile-card__footer">
+            <span class="tile-card__label">Tool</span>
+            <span class="tile-card__arrow">→</span>
+          </div>
+        </a>
+
+        <a href="tools/tool-three.html" class="tile-card tile-card--tools">
+          <div class="tile-card__icon-wrap">📋</div>
+          <div class="tile-card__title">Tool Three</div>
+          <div class="tile-card__description">A short description of what this tool does and who it's for.</div>
+          <div class="tile-card__footer">
+            <span class="tile-card__label">Tool</span>
+            <span class="tile-card__arrow">→</span>
+          </div>
+        </a>
+
+        <!-- TO ADD ANOTHER TOOL: copy a tile-card block above and paste here -->
+
+      </div>
+    </section>
+
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         SECTION 2: GUIDES
+         Each tile links to a file inside the /guides/ folder.
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <section class="hub-section hub-section--guides" id="guides">
+
+      <div class="hub-section__header">
+        <div class="hub-section__header-left">
+          <div class="hub-section__accent"></div>
+          <div>
+            <div class="hub-section__heading">Guides</div>
+            <div class="hub-section__description">Step-by-step guides and reference documents for the team.</div>
+          </div>
+        </div>
+        <span class="hub-section__count">2 items</span>
+      </div>
+
+      <div class="tile-grid">
+
+        <a href="guides/guide-one.html" class="tile-card tile-card--guides">
+          <div class="tile-card__icon-wrap">📖</div>
+          <div class="tile-card__title">Guide One</div>
+          <div class="tile-card__description">A short description of what this guide covers and who should read it.</div>
+          <div class="tile-card__footer">
+            <span class="tile-card__label">Guide</span>
+            <span class="tile-card__arrow">→</span>
+          </div>
+        </a>
+
+        <a href="guides/guide-two.html" class="tile-card tile-card--guides">
+          <div class="tile-card__icon-wrap">📝</div>
+          <div class="tile-card__title">Guide Two</div>
+          <div class="tile-card__description">A short description of what this guide covers and who should read it.</div>
+          <div class="tile-card__footer">
+            <span class="tile-card__label">Guide</span>
+            <span class="tile-card__arrow">→</span>
+          </div>
+        </a>
+
+        <!-- TO ADD ANOTHER GUIDE: copy a tile-card block above and paste here -->
+
+      </div>
+    </section>
+
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         SECTION 3: COMPANY INFO
+         Each tile links to a file inside the /company-info/ folder.
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <section class="hub-section hub-section--info" id="company-info">
+
+      <div class="hub-section__header">
+        <div class="hub-section__header-left">
+          <div class="hub-section__accent"></div>
+          <div>
+            <div class="hub-section__heading">Company Info</div>
+            <div class="hub-section__description">Key company information, policies, and reference materials.</div>
+          </div>
+        </div>
+        <span class="hub-section__count">1 item</span>
+      </div>
+
+      <div class="tile-grid">
+
+        <a href="company-info/company-info-one.html" class="tile-card tile-card--info">
+          <div class="tile-card__icon-wrap">🏢</div>
+          <div class="tile-card__title">Company Info One</div>
+          <div class="tile-card__description">A short description of what information this page contains.</div>
+          <div class="tile-card__footer">
+            <span class="tile-card__label">Company Info</span>
+            <span class="tile-card__arrow">→</span>
+          </div>
+        </a>
+
+        <!-- TO ADD ANOTHER INFO PAGE: copy a tile-card block above and paste here -->
+
+      </div>
+    </section>
+
+
+  </main>
+
+
+  <!-- ============================================================
+       FOOTER
+       Update the year or text as needed.
+       ============================================================ -->
+  <footer class="site-footer">
+    <p><strong>Soar Beyond</strong> &mdash; Innovation in Healthcare &mdash; Internal Team Hub</p>
+  </footer>
+
+</body>
+</html>
